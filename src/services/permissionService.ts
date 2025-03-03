@@ -85,10 +85,25 @@ const edit = async (
   }
 }
 
+const deleteById = async (id: string): Promise<IApiResponse> => {
+  try {
+    const deletedPermission = await Permission.findByIdAndDelete(id)
+
+    return {
+      statusCode: StatusCodes.OK,
+      message: `Deleted permission is successfully.`,
+      data: deletedPermission
+    }
+  } catch (error) {
+    throw error
+  }
+}
+
 const permissionService = {
   addNew,
   getAll,
-  edit
+  edit,
+  deleteById
 }
 
 export default permissionService
