@@ -5,6 +5,7 @@ import permissionValidation from '~/validations/permissionValidation'
 const router: Router = express.Router()
 
 router.get('/get-all-permissions', permissionController.getAll)
+router.get('/get-permissions', permissionController.getList)
 router.post(
   '/add-permission',
   permissionValidation.addNew,
