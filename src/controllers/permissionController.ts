@@ -29,10 +29,21 @@ const edit = async (req: Request, res: Response, next: NextFunction) => {
   }
 }
 
+const deleteById = async (req: Request, res: Response, next: NextFunction) => {
+  const { id } = req.params
+  try {
+    const deletedPermission = await permissionService.deleteById(id)
+    res.status(deletedPermission.statusCode).json(deletedPermission)
+  } catch (error) {
+    next(error)
+  }
+}
+
 const permissionController = {
   addNew,
   getAll,
-  edit
+  edit,
+  deleteById
 }
 
 export default permissionController

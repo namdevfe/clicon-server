@@ -15,5 +15,6 @@ router.put(
   permissionValidation.edit,
   permissionController.edit
 )
+router.delete('/delete-permission/:id', permissionController.deleteById)
 
 export default router
