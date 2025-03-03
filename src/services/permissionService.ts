@@ -1,6 +1,6 @@
 import { StatusCodes } from 'http-status-codes'
 import Permission from '~/models/permissionModel'
-import { IApiResponse } from '~/types/common'
+import { IApiResponse, IQueryParams } from '~/types/common'
 import {
   AddPermissionBodyTypes,
   EditPermissionBodyTypes
@@ -66,6 +66,44 @@ const getAll = async (): Promise<IApiResponse> => {
   }
 }
 
+const getList = async (query?: IQueryParams): Promise<IApiResponse> => {
+  const {
+    page = '1',
+    limit = '10',
+    sort = 'asc',
+    sortBy = 'createdAt'
+  } = query || {}
+
+  const queries: Record<string, any> = {
+    _destroy: false
+  }
+
+  const options = {
+    skip: (Number(page) - 1) * Number(limit),
+    limit: Number(limit),
+    sort: { [sortBy as string]: sort }
+  }
+
+  const permissions = await Permission.find(queries, null, options)
+  const total = await Permission.countDocuments({})
+  const currentPage = Number(page)
+  const totalPages = Math.ceil(Number(total / Number(limit)))
+
+  return {
+    statusCode: StatusCodes.OK,
+    message: 'Get permissions are successfully.',
+    data: {
+      permissions,
+      pagination: {
+        currentPage,
+        total,
+        totalPages,
+        limit: Number(limit)
+      }
+    }
+  }
+}
+
 const edit = async (
   id: string,
   reqBody: EditPermissionBodyTypes
@@ -102,6 +140,7 @@ const deleteById = async (id: string): Promise<IApiResponse> => {
 const permissionService = {
   addNew,
   getAll,
+  getList,
   edit,
   deleteById
 }
