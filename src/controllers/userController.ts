@@ -3,8 +3,8 @@ import userService from '~/services/userService'
 
 const register = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const response = await userService.register(req.body)
-    res.status(200).json(response)
+    const registeredUser = await userService.register(req.body)
+    res.status(registeredUser.statusCode).json(registeredUser)
   } catch (error) {
     next(error)
   }

@@ -6,6 +6,8 @@ import bcrypt from 'bcrypt'
 import { IApiResponse } from '~/types/common'
 import jwt from 'jsonwebtoken'
 import { env } from '~/config/environment'
+import Role from '~/models/roleModel'
+import { ROLES } from '~/constants/role'
 
 const hashPassword = async (plainPassword: string) => {
   const SALT_ROUNDS = 8
@@ -19,39 +21,48 @@ const comparePassword = async (plainPassword: string, hashPassword: string) => {
 const register = async (
   reqBody: RegisterUserBodyType
 ): Promise<IApiResponse> => {
-  const { email, password } = reqBody
+  const { email, password, role } = reqBody
   try {
     const existingUser = await User.findOne({ email })
 
     if (existingUser) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, 'User has already existing.')
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        'This email is already in use.'
+      )
+    }
+
+    // Assign default role is CUSTOMER
+    let roleInfo
+    if (role) {
+      roleInfo = await Role.findById(role)
+    } else {
+      const roles = await Role.find()
+      roleInfo = roles.find((role) => role.name === ROLES.CUSTOMER)
     }
 
     const hashedPassword = await hashPassword(password)
-    const registerData = {
+
+    const addData = {
       ...reqBody,
-      password: hashedPassword
+      password: hashedPassword,
+      role: roleInfo?._id
     }
 
-    const { password: excludePassword, ...registeredUser } = (
-      await User.create(registerData)
+    const { password: excludePassword, ...addedUser } = (
+      await User.create(addData)
     ).toObject()
 
     return {
       statusCode: StatusCodes.CREATED,
-      message: 'Registered account is succesfully.',
-      data: registeredUser
+      message: 'Add new user is successfully.',
+      data: addedUser
     }
   } catch (error) {
     throw error
   }
 }
 
-/**
- * Check email
- * Compare password
- * Generate token
- */
 const login = async (reqBody: LoginUserBodyType): Promise<IApiResponse> => {
   const { email, password } = reqBody
   try {

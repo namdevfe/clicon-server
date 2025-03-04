@@ -10,6 +10,6 @@ export interface IUser {
   _destroy?: boolean
 }
 
-export type RegisterUserBodyType = Omit<IUser, 'role' | '_destroy'>
+export type RegisterUserBodyType = Omit<IUser, '_destroy'>
 
 export type LoginUserBodyType = Pick<IUser, 'email' | 'password'>
