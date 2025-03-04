@@ -3,6 +3,7 @@ import { NextFunction, Request, Response } from 'express'
 import { RegisterUserBodyType } from '~/types/userType'
 import ApiError from '~/utils/ApiError'
 import { StatusCodes } from 'http-status-codes'
+import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validator'
 
 const register = async (req: Request, res: Response, next: NextFunction) => {
   const correctCondition = Joi.object<RegisterUserBodyType>({
@@ -17,7 +18,11 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
     avatar: Joi.string().optional().allow(''),
     displayName: Joi.string().optional().allow(''),
     firstName: Joi.string().required().trim().strict(),
-    lastName: Joi.string().required().trim().strict()
+    lastName: Joi.string().required().trim().strict(),
+    role: Joi.string()
+      .optional()
+      .pattern(OBJECT_ID_RULE)
+      .message(OBJECT_ID_RULE_MESSAGE)
   })
 
   try {
