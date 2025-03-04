@@ -10,8 +10,18 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
   }
 }
 
+const getList = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const usersRes = await userService.getList(req.query)
+    res.status(usersRes.statusCode).json(usersRes)
+  } catch (error) {
+    next(error)
+  }
+}
+
 const userController = {
-  register
+  register,
+  getList
 }
 
 export default userController

@@ -21,6 +21,7 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
     lastName: Joi.string().required().trim().strict(),
     role: Joi.string()
       .optional()
+      .allow('')
       .pattern(OBJECT_ID_RULE)
       .message(OBJECT_ID_RULE_MESSAGE)
   })

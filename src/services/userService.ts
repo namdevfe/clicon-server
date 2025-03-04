@@ -3,7 +3,7 @@ import User from '~/models/userModel'
 import { LoginUserBodyType, RegisterUserBodyType } from '~/types/userType'
 import ApiError from '~/utils/ApiError'
 import bcrypt from 'bcrypt'
-import { IApiResponse } from '~/types/common'
+import { IApiResponse, IQueryParams } from '~/types/common'
 import jwt from 'jsonwebtoken'
 import { env } from '~/config/environment'
 import Role from '~/models/roleModel'
@@ -130,10 +130,50 @@ const getProfile = async (userId: string): Promise<IApiResponse> => {
   }
 }
 
+const getList = async (queryParams: IQueryParams): Promise<IApiResponse> => {
+  const {
+    page = 1,
+    limit = 10,
+    sort = 'asc',
+    sortBy = 'createdAt'
+  } = queryParams
+  try {
+    const queries: Record<string, any> = {
+      _destroy: false
+    }
+
+    const options = {
+      skip: (Number(page) - 1) * Number(limit),
+      limit: Number(limit),
+      sort: { [sortBy as string]: sort }
+    }
+
+    const users = await User.find(queries, null, options).select('-password')
+    const totalUsers = await User.countDocuments()
+    const totalPages = Math.ceil(Number(totalUsers) / Number(limit))
+
+    return {
+      statusCode: StatusCodes.OK,
+      message: 'Get list user is successfully.',
+      data: {
+        users,
+        pagination: {
+          currentPage: page,
+          limit,
+          totalPages
+        }
+      }
+    }
+  } catch (error) {
+    throw error
+  }
+}
+
 const userService = {
   register,
   login,
-  getProfile
+  getProfile,
+  getList
 }
 
 export default userService
