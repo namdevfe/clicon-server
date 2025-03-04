@@ -30,6 +30,15 @@ const getRoles = async (req: Request, res: Response, next: NextFunction) => {
   }
 }
 
+const getAll = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const response = await roleService.getAll()
+    res.status(response.statusCode).json(response)
+  } catch (error) {
+    next(error)
+  }
+}
+
 const deleteRoleById = async (
   req: Request,
   res: Response,
@@ -48,6 +57,7 @@ const roleController = {
   addNew,
   editById,
   getRoles,
+  getAll,
   deleteRoleById
 }
 

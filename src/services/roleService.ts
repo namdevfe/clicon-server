@@ -106,6 +106,20 @@ const getRoles = async (query?: IQueryParams): Promise<IApiResponse> => {
   }
 }
 
+const getAll = async (): Promise<IApiResponse> => {
+  try {
+    const roles = await Role.find()
+
+    return {
+      statusCode: StatusCodes.OK,
+      message: 'Get all role is successfully.',
+      data: roles
+    }
+  } catch (error) {
+    throw error
+  }
+}
+
 const deleteRoleById = async (id: string): Promise<IApiResponse> => {
   const deletedRole = await Role.findByIdAndDelete(id, { new: true })
 
@@ -120,6 +134,7 @@ const roleService = {
   addNew,
   editById,
   getRoles,
+  getAll,
   deleteRoleById
 }
 
