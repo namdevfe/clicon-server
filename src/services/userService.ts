@@ -1,6 +1,10 @@
 import { StatusCodes } from 'http-status-codes'
 import User from '~/models/userModel'
-import { LoginUserBodyType, RegisterUserBodyType } from '~/types/userType'
+import {
+  LoginUserBodyType,
+  RegisterUserBodyType,
+  UpdateUserBodyType
+} from '~/types/userType'
 import ApiError from '~/utils/ApiError'
 import bcrypt from 'bcrypt'
 import { IApiResponse, IQueryParams } from '~/types/common'
@@ -149,8 +153,8 @@ const getList = async (queryParams: IQueryParams): Promise<IApiResponse> => {
     }
 
     const users = await User.find(queries, null, options).select('-password')
-    const totalUsers = await User.countDocuments()
-    const totalPages = Math.ceil(Number(totalUsers) / Number(limit))
+    const total = await User.countDocuments()
+    const totalPages = Math.ceil(Number(total) / Number(limit))
 
     return {
       statusCode: StatusCodes.OK,
@@ -158,7 +162,8 @@ const getList = async (queryParams: IQueryParams): Promise<IApiResponse> => {
       data: {
         users,
         pagination: {
-          currentPage: page,
+          total,
+          currentPage: Number(page),
           limit,
           totalPages
         }
@@ -169,11 +174,31 @@ const getList = async (queryParams: IQueryParams): Promise<IApiResponse> => {
   }
 }
 
+const updateById = async (
+  id: string,
+  reqBody: UpdateUserBodyType
+): Promise<IApiResponse> => {
+  try {
+    const updatedUser = await User.findByIdAndUpdate(id, reqBody, {
+      new: true
+    }).select('-password')
+
+    return {
+      statusCode: StatusCodes.OK,
+      message: `Updated user with id = ${id} is successfully.`,
+      data: updatedUser
+    }
+  } catch (error) {
+    throw error
+  }
+}
+
 const userService = {
   register,
   login,
   getProfile,
-  getList
+  getList,
+  updateById
 }
 
 export default userService

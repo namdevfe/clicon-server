@@ -1,6 +1,6 @@
 import Joi from 'joi'
 import { NextFunction, Request, Response } from 'express'
-import { RegisterUserBodyType } from '~/types/userType'
+import { RegisterUserBodyType, UpdateUserBodyType } from '~/types/userType'
 import ApiError from '~/utils/ApiError'
 import { StatusCodes } from 'http-status-codes'
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validator'
@@ -34,8 +34,30 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
   }
 }
 
+const updateById = async (req: Request, res: Response, next: NextFunction) => {
+  const schemaValidation = Joi.object<UpdateUserBodyType>({
+    firstName: Joi.string().optional(),
+    lastName: Joi.string().optional(),
+    address: Joi.array().optional().items(Joi.string().optional()),
+    avatar: Joi.string().optional(),
+    displayName: Joi.string().optional(),
+    role: Joi.string()
+      .optional()
+      .pattern(OBJECT_ID_RULE)
+      .message(OBJECT_ID_RULE_MESSAGE)
+  })
+
+  try {
+    await schemaValidation.validateAsync(req.body, { abortEarly: false })
+    next()
+  } catch (error: any) {
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, error.message))
+  }
+}
+
 const userValidation = {
-  register
+  register,
+  updateById
 }
 
 export default userValidation
