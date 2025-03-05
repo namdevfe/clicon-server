@@ -29,10 +29,21 @@ const updateById = async (req: Request, res: Response, next: NextFunction) => {
   }
 }
 
+const deleteById = async (req: Request, res: Response, next: NextFunction) => {
+  const { id } = req.params
+  try {
+    const deletedUser = await userService.deleteById(id)
+    res.status(deletedUser.statusCode).json(deletedUser)
+  } catch (error) {
+    next(error)
+  }
+}
+
 const userController = {
   register,
   getList,
-  updateById
+  updateById,
+  deleteById
 }
 
 export default userController

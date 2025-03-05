@@ -201,12 +201,33 @@ const updateById = async (
   }
 }
 
+const deleteById = async (id: string): Promise<IApiResponse> => {
+  try {
+    const deletedUser = await User.findByIdAndDelete(id, { new: true }).select(
+      '-password'
+    )
+
+    if (!deletedUser?._id) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'User not found.')
+    }
+
+    return {
+      statusCode: StatusCodes.OK,
+      message: `Deleted user with id=${deletedUser?._id} is susccessfully.`,
+      data: deletedUser
+    }
+  } catch (error) {
+    throw error
+  }
+}
+
 const userService = {
   register,
   login,
   getProfile,
   getList,
-  updateById
+  updateById,
+  deleteById
 }
 
 export default userService
