@@ -19,9 +19,20 @@ const getList = async (req: Request, res: Response, next: NextFunction) => {
   }
 }
 
+const updateById = async (req: Request, res: Response, next: NextFunction) => {
+  const { id } = req.params
+  try {
+    const updatedUser = await userService.updateById(id, req.body)
+    res.status(updatedUser.statusCode).json(updatedUser)
+  } catch (error) {
+    next(error)
+  }
+}
+
 const userController = {
   register,
-  getList
+  getList,
+  updateById
 }
 
 export default userController

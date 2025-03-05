@@ -13,3 +13,8 @@ export interface IUser {
 export type RegisterUserBodyType = Omit<IUser, '_destroy'>
 
 export type LoginUserBodyType = Pick<IUser, 'email' | 'password'>
+
+export type UpdateUserBodyType = Pick<
+  IUser,
+  'address' | 'firstName' | 'lastName' | 'avatar' | 'role' | 'displayName'
+>
