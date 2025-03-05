@@ -14,7 +14,7 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
         tlds: { allow: ['com'] }
       }),
     password: Joi.string().required().min(6).trim().strict(),
-    address: Joi.array().items(Joi.string().optional().allow('')),
+    address: Joi.string().optional().allow(''),
     avatar: Joi.string().optional().allow(''),
     displayName: Joi.string().optional().allow(''),
     firstName: Joi.string().required().trim().strict(),
@@ -36,15 +36,18 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
 
 const updateById = async (req: Request, res: Response, next: NextFunction) => {
   const schemaValidation = Joi.object<UpdateUserBodyType>({
-    firstName: Joi.string().optional(),
-    lastName: Joi.string().optional(),
-    address: Joi.array().optional().items(Joi.string().optional()),
-    avatar: Joi.string().optional(),
-    displayName: Joi.string().optional(),
+    password: Joi.string().min(6).optional(),
+    firstName: Joi.string().optional().trim().strict(),
+    lastName: Joi.string().optional().trim().strict(),
+    address: Joi.string().optional(),
+    avatar: Joi.string().optional().trim().strict(),
+    displayName: Joi.string().optional().trim().strict(),
     role: Joi.string()
       .optional()
       .pattern(OBJECT_ID_RULE)
       .message(OBJECT_ID_RULE_MESSAGE)
+      .trim()
+      .strict()
   })
 
   try {

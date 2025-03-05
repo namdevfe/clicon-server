@@ -1,5 +1,5 @@
 export interface IUser {
-  email: string
+  email?: string
   password: string
   address?: string[]
   firstName: string
@@ -14,7 +14,15 @@ export type RegisterUserBodyType = Omit<IUser, '_destroy'>
 
 export type LoginUserBodyType = Pick<IUser, 'email' | 'password'>
 
-export type UpdateUserBodyType = Pick<
-  IUser,
-  'address' | 'firstName' | 'lastName' | 'avatar' | 'role' | 'displayName'
+export type UpdateUserBodyType = Partial<
+  Pick<
+    IUser,
+    | 'address'
+    | 'firstName'
+    | 'lastName'
+    | 'avatar'
+    | 'role'
+    | 'displayName'
+    | 'password'
+  >
 >

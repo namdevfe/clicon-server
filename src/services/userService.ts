@@ -179,7 +179,15 @@ const updateById = async (
   reqBody: UpdateUserBodyType
 ): Promise<IApiResponse> => {
   try {
-    const updatedUser = await User.findByIdAndUpdate(id, reqBody, {
+    const updateData = {
+      ...reqBody
+    }
+    if (reqBody?.password) {
+      const hashedPassword = await hashPassword(reqBody.password)
+      updateData.password = hashedPassword
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(id, updateData, {
       new: true
     }).select('-password')
 
