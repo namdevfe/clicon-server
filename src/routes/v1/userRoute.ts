@@ -11,5 +11,6 @@ router.put(
   userValidation.updateById,
   userController.updateById
 )
+router.delete('/delete-user/:id', userController.deleteById)
 
 export default router
