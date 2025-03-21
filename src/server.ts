@@ -10,8 +10,8 @@ import path from 'path'
 
 const START_SERVER = async () => {
   const app = express()
-  const APP_PORT = env.APP_PORT
-  const APP_HOSTNAME = env.APP_HOSTNAME
+  const LOCAL_DEV_APP_PORT = env.LOCAL_DEV_APP_PORT
+  const LOCAL_DEV_APP_HOSTNAME = env.LOCAL_DEV_APP_HOSTNAME
 
   // For enable cors
   app.use(cors(corsOptions))
@@ -37,9 +37,17 @@ const START_SERVER = async () => {
 
   APIs_V1(app)
 
-  app.listen(APP_PORT, APP_HOSTNAME, () => {
-    console.log(`Server is running on http://${APP_HOSTNAME}:${APP_PORT}`)
-  })
+  if (env.BUILD_MODE === 'prod') {
+    app.listen(() => {
+      console.log(`Production - Server is running on port:${process.env.PORT}`)
+    })
+  } else {
+    app.listen(LOCAL_DEV_APP_PORT, LOCAL_DEV_APP_HOSTNAME, () => {
+      console.log(
+        `Dev - Server is running on http://${LOCAL_DEV_APP_HOSTNAME}:${LOCAL_DEV_APP_PORT}`
+      )
+    })
+  }
 }
 
 START_SERVER()

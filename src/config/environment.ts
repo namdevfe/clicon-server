@@ -2,8 +2,8 @@ import 'dotenv/config'
 import type { StringValue } from 'ms'
 
 export const env = {
-  APP_PORT: Number(process.env.APP_PORT),
-  APP_HOSTNAME: process.env.APP_HOSTNAME as string,
+  LOCAL_DEV_APP_PORT: Number(process.env.LOCAL_DEV_APP_PORT),
+  LOCAL_DEV_APP_HOSTNAME: process.env.LOCAL_DEV_APP_HOSTNAME as string,
   MONGODB_URI: process.env.MONGODB_URI,
   ACCESS_TOKEN_SECRET_KEY: process.env.ACCESS_TOKEN_SECRET_KEY as StringValue,
   REFRESH_TOKEN_SECRET_KEY: process.env.REFRESH_TOKEN_SECRET_KEY as StringValue,
