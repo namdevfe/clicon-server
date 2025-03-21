@@ -38,7 +38,7 @@ const START_SERVER = async () => {
   APIs_V1(app)
 
   if (env.BUILD_MODE === 'prod') {
-    app.listen(() => {
+    app.listen(process.env.PORT, () => {
       console.log(`Production - Server is running on port:${process.env.PORT}`)
     })
   } else {
