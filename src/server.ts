@@ -33,7 +33,12 @@ const START_SERVER = async () => {
   })
 
   // Swagger UI
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs))
+  app.use(
+    '/api-docs',
+    cors(corsOptions),
+    swaggerUi.serve,
+    swaggerUi.setup(specs)
+  )
 
   APIs_V1(app)
 
