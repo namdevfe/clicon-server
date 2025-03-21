@@ -1,28 +1,42 @@
-export interface IUser {
-  email?: string
+import { Schema } from 'mongoose'
+import { IBaseType } from '~/types/common'
+
+export interface IUser extends IBaseType {
+  _id?: Schema.Types.ObjectId
+  email: string
   password: string
-  address?: string[]
+  addresses?: string[]
   firstName: string
   lastName: string
-  displayName?: string
   avatar?: string
   role?: string
-  _destroy?: boolean
+  otpCode?: string
+  otpExpires?: number
+  refreshToken?: string
+  isActive?: boolean
 }
 
-export type RegisterUserBodyType = Omit<IUser, '_destroy'>
+export type RegisterUserBodyType = Pick<
+  IUser,
+  'email' | 'password' | 'firstName' | 'lastName'
+>
+
+export type VerifyOTPBodyTypes = Pick<IUser, 'otpCode'>
+
+export type SendMailVerifyOTPTypes = Pick<
+  IUser,
+  'firstName' | 'lastName' | 'otpCode'
+>
 
 export type LoginUserBodyType = Pick<IUser, 'email' | 'password'>
 
 export type UpdateUserBodyType = Partial<
   Pick<
     IUser,
-    | 'address'
-    | 'firstName'
-    | 'lastName'
-    | 'avatar'
-    | 'role'
-    | 'displayName'
-    | 'password'
+    'addresses' | 'firstName' | 'lastName' | 'avatar' | 'role' | 'password'
   >
 >
+
+export type RefreshTokenBodyTypes = Pick<IUser, 'refreshToken'>
+
+export type LogoutBodyTypes = Pick<IUser, '_id' | 'refreshToken'>

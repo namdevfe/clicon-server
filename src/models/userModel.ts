@@ -13,12 +13,15 @@ const userSchema = new Schema(
       type: String,
       required: true
     },
-    address: String,
+    addresses: [String],
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
-    displayName: String,
-    avatar: String,
+    avatar: { type: String },
     role: { type: Schema.Types.ObjectId, ref: 'roles' },
+    isActive: { type: Boolean, default: false },
+    otpCode: { type: String },
+    otpExpires: { type: Number },
+    refreshToken: { type: String },
     _destroy: {
       type: Boolean,
       default: false

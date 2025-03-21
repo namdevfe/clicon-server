@@ -1,11 +1,11 @@
 {
-  "name": "shopco-server",
+  "name": "clicon-server",
   "version": "1.0.0",
   "main": "./dist/server.js",
   "scripts": {
-    "start": "cross-env BUILD_MODE=prod node ./dist/server.js",
     "dev": "cross-env BUILD_MODE=dev nodemon ./src/server.ts",
-    "build": "rimraf ./dist && tsc && tsc-alias"
+    "build": "rimraf ./dist && tsc && tsc-alias",
+    "prod": "npm run build && cross-env BUILD_MODE=prod node ./dist/server.js"
   },
   "keywords": [],
   "author": "namdevfe",
@@ -14,15 +14,18 @@
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
     "@types/cors": "^2.8.17",
-    "@types/dotenv": "^6.1.1",
-    "@types/express": "^5.0.0",
-    "@types/jsonwebtoken": "^9.0.7",
-    "@types/mongoose": "^5.11.96",
-    "@types/node": "^22.10.3",
+    "@types/dotenv": "^8.2.3",
+    "@types/express": "^5.0.1",
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/mongoose": "^5.11.97",
+    "@types/node": "^22.13.10",
+    "@types/nodemailer": "^6.4.17",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.8",
     "nodemon": "^3.1.9",
-    "tsc-alias": "^1.8.10",
+    "tsc-alias": "^1.8.11",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.7.2"
+    "typescript": "^5.8.2"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
@@ -30,9 +33,15 @@
     "cross-env": "^7.0.3",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "google-auth-library": "^9.15.1",
     "http-status-codes": "^2.3.0",
+    "i": "^0.3.7",
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.9.3"
+    "mongoose": "^8.12.1",
+    "nodemailer": "^6.10.0",
+    "npm": "^11.2.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
   }
 }
