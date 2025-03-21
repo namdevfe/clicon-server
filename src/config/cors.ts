@@ -10,7 +10,8 @@ export const corsOptions: CorsOptions = {
       return callback(null, true)
     }
 
-    if (WHITELIST_DOMAINS.includes(origin as string)) {
+    // If same domain then origin is undefined. So we should check on mode production to secure system
+    if (!origin || WHITELIST_DOMAINS.includes(origin as string)) {
       return callback(null, true)
     }
 
