@@ -4,6 +4,9 @@ import { env } from '~/config/environment'
 import connectDB from '~/config/mongodb'
 import APIs_V1 from '~/routes/v1'
 import { corsOptions } from '~/config/cors'
+import swaggerUi from 'swagger-ui-express'
+import { specs } from 'swagger'
+import path from 'path'
 
 const START_SERVER = async () => {
   const app = express()
@@ -20,6 +23,17 @@ const START_SERVER = async () => {
   app.use(express.urlencoded({ extended: true }))
 
   await connectDB()
+
+  // Serve static files from the 'public' directory
+  app.use(express.static(path.join(__dirname, 'public')))
+
+  // Home route
+  app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public/api-docs', 'home.html'))
+  })
+
+  // Swagger UI
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs))
 
   APIs_V1(app)
 

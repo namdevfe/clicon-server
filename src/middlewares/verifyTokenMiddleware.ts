@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express'
 import { StatusCodes } from 'http-status-codes'
 import { env } from '~/config/environment'
-import { PUBLIC_PATHS } from '~/constants/path'
+import { AUTH_PATHS, PUBLIC_PATHS } from '~/constants/path'
 import ApiError from '~/utils/ApiError'
 import jwt, { TokenExpiredError } from 'jsonwebtoken'
 import { BASE_URL_API_ENDPOINT } from '~/constants/baseURL'
@@ -12,7 +12,12 @@ const verifyTokenMiddleware = async (
   next: NextFunction
 ) => {
   try {
-    if (PUBLIC_PATHS.includes(req.path.split(BASE_URL_API_ENDPOINT)[1])) {
+    if (
+      [...AUTH_PATHS, ...PUBLIC_PATHS].includes(
+        req.path.split(BASE_URL_API_ENDPOINT)[1]
+      ) ||
+      PUBLIC_PATHS.includes('/')
+    ) {
       return next()
     }
 
@@ -31,7 +36,7 @@ const verifyTokenMiddleware = async (
     next()
   } catch (error: any) {
     if (error instanceof TokenExpiredError) {
-      next(new ApiError(StatusCodes.FORBIDDEN, 'Token is expired.'))
+      next(new ApiError(StatusCodes.UNAUTHORIZED, 'Token is expired.'))
     } else {
       next(new ApiError(StatusCodes.UNAUTHORIZED, 'Invalid token.'))
     }
