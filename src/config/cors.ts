@@ -4,8 +4,8 @@ import { env } from '~/config/environment'
 import { WHITELIST_DOMAINS } from '~/constants/domain'
 import ApiError from '~/utils/ApiError'
 
-export const corsOptions = {
-  origin: (origin: any, callback: any) => {
+export const corsOptions: CorsOptions = {
+  origin: (origin, callback) => {
     if (env.BUILD_MODE === 'dev') {
       return callback(null, true)
     }
