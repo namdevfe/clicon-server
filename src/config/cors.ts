@@ -6,7 +6,7 @@ import ApiError from '~/utils/ApiError'
 
 export const corsOptions: CorsOptions = {
   origin: (origin, callback) => {
-    if (!origin && env.BUILD_MODE === 'dev') {
+    if (env.BUILD_MODE === 'dev') {
       return callback(null, true)
     }
 
