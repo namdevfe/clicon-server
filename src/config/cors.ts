@@ -6,12 +6,12 @@ import ApiError from '~/utils/ApiError'
 
 export const corsOptions: CorsOptions = {
   origin: (origin, callback) => {
+    console.log('🚀origin---->', origin)
     if (env.BUILD_MODE === 'dev') {
       return callback(null, true)
     }
 
     if (WHITELIST_DOMAINS.includes(origin as string)) {
-      console.log('🚀origin---->', origin)
       return callback(null, true)
     }
 
