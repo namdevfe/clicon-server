@@ -11,6 +11,7 @@ export const corsOptions: CorsOptions = {
     }
 
     if (WHITELIST_DOMAINS.includes(origin as string)) {
+      console.log('🚀origin---->', origin)
       return callback(null, true)
     }
 
