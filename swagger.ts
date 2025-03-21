@@ -27,6 +27,10 @@ const options: Options = {
       {
         url: 'http://localhost:8017/api/v1',
         description: 'Development server'
+      },
+      {
+        url: 'https://ecommerce-server-e2nz.onrender.com/api/v1',
+        description: 'Production server'
       }
     ],
     tags: [
