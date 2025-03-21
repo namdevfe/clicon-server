@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "cross-env BUILD_MODE=dev nodemon ./src/server.ts",
     "build": "rimraf ./dist && tsc && tsc-alias",
-    "prod": "npm run build && cross-env BUILD_MODE=prod node ./dist/server.js"
+    "prod": "npm run build && cross-env BUILD_MODE=prod node ./dist/src/server.js"
   },
   "keywords": [],
   "author": "namdevfe",
