@@ -13,10 +13,9 @@ const verifyTokenMiddleware = async (
 ) => {
   try {
     if (
-      [...AUTH_PATHS, ...PUBLIC_PATHS].includes(
-        req.path.split(BASE_URL_API_ENDPOINT)[1]
-      ) ||
-      PUBLIC_PATHS.includes('/')
+      [...AUTH_PATHS, ...PUBLIC_PATHS].some(
+        (path) => req.path.split(BASE_URL_API_ENDPOINT)[1] === path
+      )
     ) {
       return next()
     }
