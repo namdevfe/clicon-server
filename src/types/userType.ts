@@ -40,3 +40,8 @@ export type UpdateUserBodyType = Partial<
 export type RefreshTokenBodyTypes = Pick<IUser, 'refreshToken'>
 
 export type LogoutBodyTypes = Pick<IUser, '_id' | 'refreshToken'>
+
+export type AddUser = Omit<
+  IUser,
+  '_id' | 'refreshToken' | 'otpCode' | 'otpExpires' | '_destroy'
+>
