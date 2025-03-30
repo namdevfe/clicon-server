@@ -6,7 +6,7 @@ const router: Router = express.Router()
 
 /**
  * @swagger
- * /user/add-user:
+ * /users/add-user:
  *   post:
  *     tags:
  *       - Users
