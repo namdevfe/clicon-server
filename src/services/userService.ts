@@ -1,6 +1,7 @@
 import { StatusCodes } from 'http-status-codes'
 import User from '~/models/userModel'
 import {
+  AddUser,
   LoginUserBodyType,
   RegisterUserBodyType,
   UpdateUserBodyType
@@ -13,6 +14,10 @@ import { env } from '~/config/environment'
 import Role from '~/models/roleModel'
 import { ROLES } from '~/constants/role'
 import { comparePassword, hashPassword } from '~/utils/hashPassword'
+import { generateOTP } from '~/utils/generateOTP'
+import { OTP_TIME_EXPIRES } from '~/constants/datetime'
+import generateHTMLVerifyOTP from '~/utils/generateHTMLVerifyOTP'
+import mailService from '~/services/mailService'
 
 // const register = async (
 //   reqBody: RegisterUserBodyType
@@ -213,10 +218,71 @@ const deleteById = async (id: string): Promise<IApiResponse> => {
   }
 }
 
+const addUser = async (reqBody: AddUser): Promise<IApiResponse | undefined> => {
+  const { email, password, role } = reqBody
+
+  try {
+    const existingUser = await User.findOne({ email })
+
+    // Check email
+    if (existingUser?._id) {
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        'This email address had already used.'
+      )
+    }
+
+    // Hash password
+    const hashedPassword = hashPassword(password)
+
+    const roleCustomer = await Role.findOne({ name: ROLES.CUSTOMER })
+
+    const addNewData: AddUser = {
+      ...reqBody,
+      email,
+      password: hashedPassword,
+      role: role || roleCustomer?._id.toString()
+    }
+
+    const dataRes = await User.create(addNewData)
+
+    // Generate OTP code
+    const otpCode = generateOTP(6)
+    const otpExpires = Date.now() + OTP_TIME_EXPIRES
+
+    const htmlContent = generateHTMLVerifyOTP({
+      firstName: dataRes.firstName,
+      lastName: dataRes.lastName,
+      otpCode
+    })
+    // Send email
+    const emailData = {
+      email: dataRes.email,
+      subject: 'Xác thực tài khoản đã đăng ký tại Clicon',
+      content: htmlContent
+    }
+
+    // Save OTP to db
+    dataRes.otpCode = otpCode
+    dataRes.otpExpires = otpExpires
+    await dataRes.save()
+
+    await mailService.sendMail(emailData)
+
+    return {
+      statusCode: StatusCodes.OK,
+      message: 'OTP had been sent to your email. Please check your email.'
+    }
+  } catch (error) {
+    throw error
+  }
+}
+
 const userService = {
   // register,
   // login,
   // getProfile,
+  addUser,
   getList,
   updateById,
   deleteById

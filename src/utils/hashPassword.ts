@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt'
 
 const SALT_ROUNDS = 8
 
-export const hashPassword = async (plainPassword: string) => {
+export const hashPassword = (plainPassword: string) => {
   return bcrypt.hashSync(plainPassword, SALT_ROUNDS)
 }
 

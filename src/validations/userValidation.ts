@@ -1,65 +1,47 @@
-// import Joi from 'joi'
-// import { NextFunction, Request, Response } from 'express'
-// import { RegisterUserBodyType, UpdateUserBodyType } from '~/types/userType'
-// import ApiError from '~/utils/ApiError'
-// import { StatusCodes } from 'http-status-codes'
-// import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validator'
+import { NextFunction, Request, Response } from 'express'
+import { StatusCodes } from 'http-status-codes'
+import Joi from 'joi'
+import { AddUser } from '~/types/userType'
+import ApiError from '~/utils/ApiError'
+import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validator'
 
-// const register = async (req: Request, res: Response, next: NextFunction) => {
-//   const correctCondition = Joi.object<RegisterUserBodyType>({
-//     email: Joi.string()
-//       .required()
-//       .email({
-//         minDomainSegments: 1,
-//         tlds: { allow: ['com'] }
-//       }),
-//     password: Joi.string().required().min(6).trim().strict(),
-//     addresses: Joi.string().optional().allow(''),
-//     avatar: Joi.string().optional().allow(''),
-//     displayName: Joi.string().optional().allow(''),
-//     firstName: Joi.string().required().trim().strict(),
-//     lastName: Joi.string().required().trim().strict(),
-//     role: Joi.string()
-//       .optional()
-//       .allow('')
-//       .pattern(OBJECT_ID_RULE)
-//       .message(OBJECT_ID_RULE_MESSAGE)
-//   })
+const addUser = async (req: Request, _: Response, next: NextFunction) => {
+  const addUserSchema = Joi.object<AddUser>({
+    firstName: Joi.string().required().trim().strict(),
+    lastName: Joi.string().required().trim().strict(),
+    email: Joi.string()
+      .required()
+      .email({
+        minDomainSegments: 1,
+        tlds: { allow: ['com'] }
+      })
+      .trim()
+      .strict(),
+    password: Joi.string().required().min(6).trim().strict(),
+    addresses: Joi.array()
+      .items(Joi.string().trim().strict())
+      .optional()
+      .default([]),
+    avatar: Joi.string().optional().trim().strict(),
+    role: Joi.string()
+      .optional()
+      .pattern(OBJECT_ID_RULE)
+      .message(OBJECT_ID_RULE_MESSAGE)
+      .trim()
+      .strict()
+  })
 
-//   try {
-//     await correctCondition.validateAsync(req.body, { abortEarly: false })
-//     next()
-//   } catch (error: any) {
-//     next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, error.message))
-//   }
-// }
+  try {
+    await addUserSchema.validateAsync(req.body, { abortEarly: false })
 
-// const updateById = async (req: Request, res: Response, next: NextFunction) => {
-//   const schemaValidation = Joi.object<UpdateUserBodyType>({
-//     password: Joi.string().min(6).optional(),
-//     firstName: Joi.string().optional().trim().strict(),
-//     lastName: Joi.string().optional().trim().strict(),
-//     addresses: Joi.string().optional(),
-//     avatar: Joi.string().optional().trim().strict(),
-//     role: Joi.string()
-//       .optional()
-//       .pattern(OBJECT_ID_RULE)
-//       .message(OBJECT_ID_RULE_MESSAGE)
-//       .trim()
-//       .strict()
-//   })
+    next()
+  } catch (error: any) {
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, error?.message))
+  }
+}
 
-//   try {
-//     await schemaValidation.validateAsync(req.body, { abortEarly: false })
-//     next()
-//   } catch (error: any) {
-//     next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, error.message))
-//   }
-// }
+const userValidation = {
+  addUser
+}
 
-// const userValidation = {
-//   register,
-//   updateById
-// }
-
-// export default userValidation
+export default userValidation
