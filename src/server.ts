@@ -24,10 +24,10 @@ const START_SERVER = async () => {
   // For parsing application/x-www-form-urlencoded
   app.use(express.urlencoded({ extended: true }))
 
-  await connectDB()
-
   // Serve static files from the 'public' directory
   app.use(express.static(path.join(__dirname, 'public')))
+
+  await connectDB()
 
   // Home route
   app.get('/', (req, res) => {

@@ -130,6 +130,20 @@ import mailService from '~/services/mailService'
 //     throw error
 //   }
 // }
+const getAllUsers = async (): Promise<IApiResponse> => {
+  try {
+    const users = await User.find().select(
+      '-password -refreshToken -otpCode -otpExpires'
+    )
+    return {
+      statusCode: StatusCodes.OK,
+      message: 'Get all users are successfully.',
+      data: users
+    }
+  } catch (error) {
+    throw error
+  }
+}
 
 const getList = async (queryParams: IQueryParams): Promise<IApiResponse> => {
   const {
@@ -282,6 +296,7 @@ const userService = {
   // register,
   // login,
   // getProfile,
+  getAllUsers,
   addUser,
   getList,
   updateById,
