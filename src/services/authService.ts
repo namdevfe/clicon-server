@@ -292,7 +292,7 @@ const logout = async (reqBody: LogoutBodyTypes): Promise<IApiResponse> => {
 const getProfile = async (userId: string): Promise<IApiResponse> => {
   try {
     const profile = await User.findById(userId)
-      .select('-password -refreshToken')
+      .select('-password -refreshToken -otpCode -otpExpires')
       .populate('role', 'name')
 
     if (!profile) {
