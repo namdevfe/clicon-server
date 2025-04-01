@@ -10,8 +10,18 @@ const addUser = async (req: Request, res: Response, next: NextFunction) => {
   }
 }
 
+const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const response = await userService.getAllUsers()
+    res.json(response)
+  } catch (error) {
+    next(error)
+  }
+}
+
 const userController = {
-  addUser
+  addUser,
+  getAllUsers
 }
 
 export default userController

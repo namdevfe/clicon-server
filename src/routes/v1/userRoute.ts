@@ -82,5 +82,31 @@ const router: Router = express.Router()
  *                   example: Internal Server Error
  */
 router.post('/add-user', userValidation.addUser, userController.addUser)
+/**
+ * @swagger
+ * /users/get-all-users:
+ *   get:
+ *     tags:
+ *       - Users
+ *     summary: Get all users
+ *     description: Get all users
+ *     responses:
+ *        200:
+ *         description: Return list all users.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: number
+ *                   example: 200
+ *                 message:
+ *                   type: string
+ *                   example: Get all users is successfully
+ *                 data:
+ *                   type: array
+ */
+router.get('/get-all-users', userController.getAllUsers)
 
 export default router
