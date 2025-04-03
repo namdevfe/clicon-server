@@ -22,9 +22,10 @@ const addUser = async (req: Request, _: Response, next: NextFunction) => {
       .items(Joi.string().trim().strict())
       .optional()
       .default([]),
-    avatar: Joi.string().optional().trim().strict(),
+    avatar: Joi.string().optional().allow('').trim().strict(),
     role: Joi.string()
       .optional()
+      .allow('')
       .pattern(OBJECT_ID_RULE)
       .message(OBJECT_ID_RULE_MESSAGE)
       .trim()
