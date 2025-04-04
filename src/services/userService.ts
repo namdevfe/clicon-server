@@ -4,7 +4,7 @@ import {
   AddUser,
   LoginUserBodyType,
   RegisterUserBodyType,
-  UpdateUserBodyType
+  EditUserBodyTypes
 } from '~/types/userType'
 import ApiError from '~/utils/ApiError'
 import bcrypt from 'bcrypt'
@@ -185,27 +185,28 @@ const getList = async (queryParams: IQueryParams): Promise<IApiResponse> => {
   }
 }
 
-const updateById = async (
+const editUserById = async (
   id: string,
-  reqBody: UpdateUserBodyType
+  reqBody: EditUserBodyTypes
 ): Promise<IApiResponse> => {
   try {
-    const updateData = {
+    const editUserData = {
       ...reqBody
     }
+
     if (reqBody?.password) {
-      const hashedPassword = await hashPassword(reqBody.password)
-      updateData.password = hashedPassword
+      const hashedPassword = hashPassword(reqBody.password)
+      editUserData.password = hashedPassword
     }
 
-    const updatedUser = await User.findByIdAndUpdate(id, updateData, {
+    const response = await User.findByIdAndUpdate(id, editUserData, {
       new: true
-    }).select('-password')
+    }).select('-password -refreshToken -otpCode -otpExpires')
 
     return {
       statusCode: StatusCodes.OK,
-      message: `Updated user with id = ${id} is successfully.`,
-      data: updatedUser
+      message: `Edited user with id=${id} is successfully.`,
+      data: response
     }
   } catch (error) {
     throw error
@@ -299,7 +300,7 @@ const userService = {
   getAllUsers,
   addUser,
   getList,
-  updateById,
+  editUserById,
   deleteById
 }
 

@@ -19,9 +19,20 @@ const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
   }
 }
 
+const editUser = async (req: Request, res: Response, next: NextFunction) => {
+  const userId = req.params?.id
+  try {
+    const response = await userService.editUserById(userId, req.body)
+    res.status(response.statusCode).json(response)
+  } catch (error) {
+    next(error)
+  }
+}
+
 const userController = {
+  getAllUsers,
   addUser,
-  getAllUsers
+  editUser
 }
 
 export default userController

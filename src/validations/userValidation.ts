@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express'
 import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
-import { AddUser } from '~/types/userType'
+import { AddUser, EditUserBodyTypes } from '~/types/userType'
 import ApiError from '~/utils/ApiError'
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validator'
 
@@ -41,8 +41,34 @@ const addUser = async (req: Request, _: Response, next: NextFunction) => {
   }
 }
 
+const editUser = async (req: Request, _: Response, next: NextFunction) => {
+  const editUserSchema = Joi.object<EditUserBodyTypes>({
+    addresses: Joi.array()
+      .items(Joi.string().trim().strict())
+      .default([])
+      .optional(),
+    avatar: Joi.string().trim().strict().optional(),
+    firstName: Joi.string().required().trim().strict(),
+    lastName: Joi.string().required().trim().strict(),
+    password: Joi.string().min(6).trim().strict().optional(),
+    role: Joi.string()
+      .pattern(OBJECT_ID_RULE)
+      .message(OBJECT_ID_RULE_MESSAGE)
+      .trim()
+      .strict()
+  })
+
+  try {
+    await editUserSchema.validateAsync(req.body, { abortEarly: false })
+    next()
+  } catch (error: any) {
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, error.message))
+  }
+}
+
 const userValidation = {
-  addUser
+  addUser,
+  editUser
 }
 
 export default userValidation

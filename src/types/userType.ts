@@ -30,7 +30,7 @@ export type SendMailVerifyOTPTypes = Pick<
 
 export type LoginUserBodyType = Pick<IUser, 'email' | 'password'>
 
-export type UpdateUserBodyType = Partial<
+export type EditUserBodyTypes = Partial<
   Pick<
     IUser,
     'addresses' | 'firstName' | 'lastName' | 'avatar' | 'role' | 'password'
