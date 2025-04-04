@@ -10,6 +10,15 @@ const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
   }
 }
 
+const getUsers = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const response = await userService.getUsers(req.query)
+    res.json(response)
+  } catch (error) {
+    next(error)
+  }
+}
+
 const getUserDetails = async (
   req: Request,
   res: Response,
@@ -53,6 +62,7 @@ const deleteUser = async (req: Request, res: Response, next: NextFunction) => {
 
 const userController = {
   getAllUsers,
+  getUsers,
   getUserDetails,
   addUser,
   editUser,

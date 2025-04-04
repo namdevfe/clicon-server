@@ -33,6 +33,68 @@ router.get('/get-all-users', userController.getAllUsers)
 
 /**
  * @swagger
+ * /users/get-users:
+ *   get:
+ *     tags:
+ *       - Users
+ *     summary: Get list users with pagination
+ *     description: Get list users with pagination
+ *     parameters:
+ *        - in: query
+ *          name: page
+ *          schema:
+ *            type: interger
+ *          description: The number of page
+ *        - in: query
+ *          name: limit
+ *          schema:
+ *            type: interger
+ *          description: The number of items to return
+ *        - in: query
+ *          name: sort
+ *          schema:
+ *            type: string
+ *          description: Sort asc or desc by field sorted
+ *        - in: query
+ *          name: sortBy
+ *          schema:
+ *            type: string
+ *          description: What is field need to sort?
+ *     responses:
+ *        200:
+ *         description: Return list users is paginated.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: number
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     users:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                     pagination:
+ *                       type: object
+ *                       properties:
+ *                         currentPage:
+ *                           type: number
+ *                         total:
+ *                           type: number
+ *                         totalPages:
+ *                           type: number
+ *                         limit:
+ *                           type: number
+ */
+router.get('/get-users', userController.getUsers)
+
+/**
+ * @swagger
  * /users/get-user-details/{id}:
  *   get:
  *     tags:
