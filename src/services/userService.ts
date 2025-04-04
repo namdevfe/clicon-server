@@ -12,7 +12,7 @@ import generateHTMLVerifyOTP from '~/utils/generateHTMLVerifyOTP'
 import { generateOTP } from '~/utils/generateOTP'
 import { hashPassword } from '~/utils/hashPassword'
 
-const getList = async (queryParams: IQueryParams): Promise<IApiResponse> => {
+const getUsers = async (queryParams: IQueryParams): Promise<IApiResponse> => {
   const {
     page = 1,
     limit = 10,
@@ -30,7 +30,9 @@ const getList = async (queryParams: IQueryParams): Promise<IApiResponse> => {
       sort: { [sortBy as string]: sort }
     }
 
-    const users = await User.find(queries, null, options).select('-password')
+    const users = await User.find(queries, null, options).select(
+      USER_EXCLUDE_FIELDS
+    )
     const total = await User.countDocuments()
     const totalPages = Math.ceil(Number(total) / Number(limit))
 
@@ -193,7 +195,7 @@ const addUser = async (reqBody: AddUser): Promise<IApiResponse | undefined> => {
 
 const userService = {
   getAllUsers,
-  getList,
+  getUsers,
   getUserDeitals,
   addUser,
   editUserById,
