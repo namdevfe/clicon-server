@@ -1,18 +1,31 @@
 import { NextFunction, Request, Response } from 'express'
 import userService from '~/services/userService'
 
-const addUser = async (req: Request, res: Response, next: NextFunction) => {
+const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const response = await userService.addUser({ ...req.body })
+    const response = await userService.getAllUsers()
     res.json(response)
   } catch (error) {
     next(error)
   }
 }
 
-const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
+const getUserDetails = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
-    const response = await userService.getAllUsers()
+    const response = await userService.getUserDeitals(req.params?.id)
+    res.status(response.statusCode).json(response)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const addUser = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const response = await userService.addUser({ ...req.body })
     res.json(response)
   } catch (error) {
     next(error)
@@ -31,6 +44,7 @@ const editUser = async (req: Request, res: Response, next: NextFunction) => {
 
 const userController = {
   getAllUsers,
+  getUserDetails,
   addUser,
   editUser
 }
