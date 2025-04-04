@@ -90,18 +90,20 @@ const editUserById = async (
   reqBody: EditUserBodyTypes
 ): Promise<IApiResponse> => {
   try {
-    const editUserData = {
+    const editUserData: EditUserBodyTypes = {
       ...reqBody
     }
 
-    if (reqBody?.password) {
+    if (!!reqBody?.password) {
       const hashedPassword = hashPassword(reqBody.password)
       editUserData.password = hashedPassword
+    } else {
+      delete editUserData.password
     }
 
     const response = await User.findByIdAndUpdate(id, editUserData, {
       new: true
-    }).select('-password -refreshToken -otpCode -otpExpires')
+    }).select(USER_EXCLUDE_FIELDS)
 
     return {
       statusCode: StatusCodes.OK,

@@ -50,7 +50,7 @@ const editUser = async (req: Request, _: Response, next: NextFunction) => {
     avatar: Joi.string().trim().strict().optional(),
     firstName: Joi.string().required().trim().strict(),
     lastName: Joi.string().required().trim().strict(),
-    password: Joi.string().min(6).trim().strict().optional(),
+    password: Joi.string().min(6).trim().strict().optional().allow(''),
     role: Joi.string()
       .pattern(OBJECT_ID_RULE)
       .message(OBJECT_ID_RULE_MESSAGE)
