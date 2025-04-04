@@ -6,6 +6,65 @@ const router: Router = express.Router()
 
 /**
  * @swagger
+ * /users/get-all-users:
+ *   get:
+ *     tags:
+ *       - Users
+ *     summary: Get all users
+ *     description: Get all users
+ *     responses:
+ *        200:
+ *         description: Return list all users.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: number
+ *                   example: 200
+ *                 message:
+ *                   type: string
+ *                   example: Get all users is successfully
+ *                 data:
+ *                   type: array
+ */
+router.get('/get-all-users', userController.getAllUsers)
+
+/**
+ * @swagger
+ * /users/get-user-details/{id}:
+ *   get:
+ *     tags:
+ *       - Users
+ *     summary: Get user details by id
+ *     description: Get user details by id
+ *     parameters:
+ *      - in: path
+ *        name: id
+ *        schema:
+ *          type: string
+ *        required: true
+ *        description: Numeric ID of the user
+ *     responses:
+ *        200:
+ *         description: Return user details.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: number
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ */
+router.get('/get-user-details/:id', userController.getUserDetails)
+
+/**
+ * @swagger
  * /users/add-user:
  *   post:
  *     tags:
@@ -82,32 +141,7 @@ const router: Router = express.Router()
  *                   example: Internal Server Error
  */
 router.post('/add-user', userValidation.addUser, userController.addUser)
-/**
- * @swagger
- * /users/get-all-users:
- *   get:
- *     tags:
- *       - Users
- *     summary: Get all users
- *     description: Get all users
- *     responses:
- *        200:
- *         description: Return list all users.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 statusCode:
- *                   type: number
- *                   example: 200
- *                 message:
- *                   type: string
- *                   example: Get all users is successfully
- *                 data:
- *                   type: array
- */
-router.get('/get-all-users', userController.getAllUsers)
+
 /**
  * @swagger
  * /users/edit-user/{id}:
