@@ -108,5 +108,57 @@ router.post('/add-user', userValidation.addUser, userController.addUser)
  *                   type: array
  */
 router.get('/get-all-users', userController.getAllUsers)
-
+/**
+ * @swagger
+ * /users/edit-user/{id}:
+ *   put:
+ *     tags:
+ *       - Users
+ *     summary: Edit user by id
+ *     description: Edit user by id
+ *     parameters:
+ *      - in: path
+ *        name: id
+ *        schema:
+ *          type: string
+ *        required: true
+ *        description: Numeric ID of the user to edit
+ *     requestBody:
+ *       description: Body data can edit user
+ *       required: true
+ *       content:
+ *         application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              firstName:
+ *                type: string
+ *                required: true
+ *              lastName:
+ *                type: string
+ *                required: true
+ *              password:
+ *                type: string
+ *              role:
+ *                type: string
+ *              addresses:
+ *                type: array
+ *                items:
+ *                  type: string
+ *              avatar:
+ *                type: string
+ *     responses:
+ *        200:
+ *         description: Return data is edited.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: number
+ *                 message:
+ *                   type: string
+ */
+router.put('/edit-user/:id', userValidation.editUser, userController.editUser)
 export default router
