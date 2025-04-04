@@ -19,6 +19,7 @@ const getUsers = async (queryParams: IQueryParams): Promise<IApiResponse> => {
     sort = 'asc',
     sortBy = 'createdAt'
   } = queryParams
+
   try {
     const queries: Record<string, any> = {
       _destroy: false
