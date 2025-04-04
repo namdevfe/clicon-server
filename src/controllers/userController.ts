@@ -42,11 +42,21 @@ const editUser = async (req: Request, res: Response, next: NextFunction) => {
   }
 }
 
+const deleteUser = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const response = await userService.deleteUserById(req.params?.id)
+    res.status(response.statusCode).json(response)
+  } catch (error) {
+    next(error)
+  }
+}
+
 const userController = {
   getAllUsers,
   getUserDetails,
   addUser,
-  editUser
+  editUser,
+  deleteUser
 }
 
 export default userController

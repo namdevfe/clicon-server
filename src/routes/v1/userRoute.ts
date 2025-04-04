@@ -195,4 +195,37 @@ router.post('/add-user', userValidation.addUser, userController.addUser)
  *                   type: string
  */
 router.put('/edit-user/:id', userValidation.editUser, userController.editUser)
+
+/**
+ * @swagger
+ * /users/delete-user/{id}:
+ *   delete:
+ *     tags:
+ *       - Users
+ *     summary: Delete user by id (hard delete)
+ *     description: Delete user by id (hard delete)
+ *     parameters:
+ *      - in: path
+ *        name: id
+ *        schema:
+ *          type: string
+ *        required: true
+ *        description: Numeric ID of the user to delete
+ *     responses:
+ *        200:
+ *         description: Return data is deleted.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: number
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ */
+router.delete('/delete-user/:id', userController.deleteUser)
+
 export default router
