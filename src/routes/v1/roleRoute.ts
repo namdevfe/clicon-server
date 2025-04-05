@@ -129,6 +129,37 @@ router.get('/get-all-roles', roleController.getAll)
 router.get('/get-roles', roleController.getRoles)
 /**
  * @swagger
+ * /roles/get-role-details/{id}:
+ *   get:
+ *     tags:
+ *       - Roles
+ *     summary: Get role details by id
+ *     description: Get role details by id
+ *     parameters:
+ *        - in: path
+ *          name: id
+ *          schema:
+ *            type: interger
+ *          description: ID of role need to get
+ *     responses:
+ *        200:
+ *         description: Return role details.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: number
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ */
+router.get('/get-role-details/:id', roleController.getRoleDetails)
+
+/**
+ * @swagger
  * /roles/add-role:
  *   post:
  *     tags:

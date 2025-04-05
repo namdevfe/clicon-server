@@ -120,6 +120,24 @@ const getAll = async (): Promise<IApiResponse> => {
   }
 }
 
+const getRoleDetails = async (id: string): Promise<IApiResponse> => {
+  try {
+    const roleDeitals = await Role.findById(id)
+
+    if (!roleDeitals) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Cannot found this role.')
+    }
+
+    return {
+      statusCode: StatusCodes.OK,
+      message: 'Get role details is successfully.',
+      data: roleDeitals
+    }
+  } catch (error) {
+    throw error
+  }
+}
+
 const deleteRoleById = async (id: string): Promise<IApiResponse> => {
   const deletedRole = await Role.findByIdAndDelete(id, { new: true })
 
@@ -135,6 +153,7 @@ const roleService = {
   editById,
   getRoles,
   getAll,
+  getRoleDetails,
   deleteRoleById
 }
 

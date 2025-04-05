@@ -39,6 +39,20 @@ const getAll = async (req: Request, res: Response, next: NextFunction) => {
   }
 }
 
+const getRoleDetails = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const roleId = req.params?.id
+  try {
+    const response = await roleService.getRoleDetails(roleId)
+    res.status(response.statusCode).json(response)
+  } catch (error) {
+    next(error)
+  }
+}
+
 const deleteRoleById = async (
   req: Request,
   res: Response,
@@ -58,6 +72,7 @@ const roleController = {
   editById,
   getRoles,
   getAll,
+  getRoleDetails,
   deleteRoleById
 }
 
