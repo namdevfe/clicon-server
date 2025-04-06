@@ -104,6 +104,24 @@ const getList = async (query?: IQueryParams): Promise<IApiResponse> => {
   }
 }
 
+const getDetails = async (id: string): Promise<IApiResponse> => {
+  try {
+    const response = await Permission.findById(id)
+
+    if (!response) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Cannot found this permission')
+    }
+
+    return {
+      statusCode: StatusCodes.OK,
+      message: 'Get permission details is successfully.',
+      data: response
+    }
+  } catch (error) {
+    throw error
+  }
+}
+
 const edit = async (
   id: string,
   reqBody: EditPermissionBodyTypes
@@ -141,6 +159,7 @@ const permissionService = {
   addNew,
   getAll,
   getList,
+  getDetails,
   edit,
   deleteById
 }
