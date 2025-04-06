@@ -29,6 +29,16 @@ const getList = async (req: Request, res: Response, next: NextFunction) => {
   }
 }
 
+const getDetails = async (req: Request, res: Response, next: NextFunction) => {
+  const id = req.params?.id || ''
+  try {
+    const response = await permissionService.getDetails(id)
+    res.status(response.statusCode).json(response)
+  } catch (error) {
+    next(error)
+  }
+}
+
 const edit = async (req: Request, res: Response, next: NextFunction) => {
   const { id } = req.params
   try {
@@ -53,6 +63,7 @@ const permissionController = {
   addNew,
   getAll,
   getList,
+  getDetails,
   edit,
   deleteById
 }

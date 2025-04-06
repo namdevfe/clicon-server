@@ -75,6 +75,36 @@ router.get('/get-all-permissions', permissionController.getAll)
 router.get('/get-permissions', permissionController.getList)
 /**
  * @swagger
+ * /permisisons/get-permission-details/{id}:
+ *   get:
+ *     tags:
+ *       - Permissions
+ *     summary: Get permission details by id
+ *     description: Get permission details by id
+ *     parameters:
+ *        - in: path
+ *          name: id
+ *          schema:
+ *            type: interger
+ *          description: ID of permission need to get
+ *     responses:
+ *        200:
+ *         description: Return permission details.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: number
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ */
+router.get('/get-permission-details/:id', permissionController.getDetails)
+/**
+ * @swagger
  * /permissions/add-permission:
  *   post:
  *     tags:
