@@ -43,4 +43,10 @@ router.post(
   productCategoryController.addNew
 )
 
+router.put(
+  '/edit-product-category-by-slug/:slug',
+  productCategoryValidation.editBySlug,
+  productCategoryController.editBySlug
+)
+
 export default router

@@ -10,6 +10,16 @@ const addNew = async (req: Request, res: Response, next: NextFunction) => {
   }
 }
 
-const productCategoryController = { addNew }
+const editBySlug = async (req: Request, res: Response, next: NextFunction) => {
+  const { slug } = req.params
+  try {
+    const response = await productCategoryService.editBySlug(slug, req.body)
+    res.status(response.statusCode).json(response)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const productCategoryController = { addNew, editBySlug }
 
 export default productCategoryController

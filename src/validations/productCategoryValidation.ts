@@ -18,8 +18,23 @@ const addNew = async (req: Request, _: Response, next: NextFunction) => {
   }
 }
 
+const editBySlug = async (req: Request, _: Response, next: NextFunction) => {
+  const editSchema = Joi.object<AddProductCategoryPayload>({
+    name: Joi.string().optional().trim().strict(),
+    description: Joi.string().optional().allow('').trim().strict()
+  })
+
+  try {
+    await editSchema.validateAsync(req.body, { abortEarly: false })
+    next()
+  } catch (error: any) {
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, error.message))
+  }
+}
+
 const productCategoryValidation = {
-  addNew
+  addNew,
+  editBySlug
 }
 
 export default productCategoryValidation
