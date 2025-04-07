@@ -1,6 +1,6 @@
 import { model, Schema } from 'mongoose'
 
-export const PERMISSION_COLLECTION_NAME = 'permission'
+export const PERMISSION_COLLECTION_NAME = 'permissions'
 
 const permissionSchema = new Schema(
   {
