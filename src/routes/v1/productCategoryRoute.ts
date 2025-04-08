@@ -126,4 +126,39 @@ router.delete(
   productCategoryController.softDeleteBySlug
 )
 
+/**
+ * @swagger
+ * /product-categories/hard-delete-product-category-by-slug/{slug}:
+ *   delete:
+ *     tags:
+ *       - Product Categories
+ *     summary: Delete product category by slug (hard delete)
+ *     description: Delete product category by slug (hard delete)
+ *     parameters:
+ *      - in: path
+ *        name: slug
+ *        schema:
+ *          type: string
+ *        required: true
+ *        description: Slug of the product category to delete
+ *     responses:
+ *        200:
+ *         description: Return data is deleted.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: number
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ */
+router.delete(
+  '/hard-delete-product-category-by-slug/:slug',
+  productCategoryController.hardDeleteBySlug
+)
+
 export default router
