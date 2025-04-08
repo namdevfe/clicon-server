@@ -189,13 +189,30 @@ const getList = async (
   }
 }
 
+const getDetailsBySlug = async (slug: string): Promise<IApiResponse> => {
+  try {
+    const productCategoryDetails = await ProductCategory.findOne({ slug })
+    if (!productCategoryDetails) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Cannot find product category.')
+    }
+    return {
+      statusCode: StatusCodes.OK,
+      message: 'Get product category details is successfully.',
+      data: productCategoryDetails
+    }
+  } catch (error) {
+    throw error
+  }
+}
+
 const productCategoryService = {
   addNew,
   editBySlug,
   softDeleteBySlug,
   hardDeleteBySlug,
   getAll,
-  getList
+  getList,
+  getDetailsBySlug
 }
 
 export default productCategoryService
