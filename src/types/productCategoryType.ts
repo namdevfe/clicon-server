@@ -1,7 +1,8 @@
-import { IBaseType } from '~/types/common'
+import mongoose from 'mongoose'
+import { IApiResponse, IBaseType, IPagination } from '~/types/common'
 
 export interface IProductCategory extends IBaseType {
-  _id: string
+  _id: mongoose.Types.ObjectId
   name: string
   slug?: string
   description?: string
@@ -16,3 +17,8 @@ export type EditProductCategoryPayload = Pick<
   IProductCategory,
   'name' | 'description'
 >
+
+export type ProductCategoryList = {
+  productCategories: IProductCategory[]
+  pagination: IPagination
+}

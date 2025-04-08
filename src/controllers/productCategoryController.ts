@@ -57,12 +57,23 @@ const getAll = async (_: Request, res: Response, next: NextFunction) => {
   }
 }
 
+const getList = async (req: Request, res: Response, next: NextFunction) => {
+  const queries = req.query
+  try {
+    const response = await productCategoryService.getList(queries)
+    res.status(response.statusCode).json(response)
+  } catch (error) {
+    next(error)
+  }
+}
+
 const productCategoryController = {
   addNew,
   editBySlug,
   softDeleteBySlug,
   hardDeleteBySlug,
-  getAll
+  getAll,
+  getList
 }
 
 export default productCategoryController
