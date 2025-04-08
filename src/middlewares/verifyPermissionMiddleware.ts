@@ -23,6 +23,23 @@ const verifyPermissionMiddleware = async (
       return next()
     }
 
+    const roleInfo = await Role.findById(req.user?.role)
+
+    const permissionIds = roleInfo?.permissions || []
+
+    const listPermission = await Permission.find({
+      _id: { $in: permissionIds }
+    })
+
+    if (
+      listPermission.length > 0 &&
+      listPermission.some(
+        (el) => el.url === baseUrl.split(BASE_URL_API_ENDPOINT)[1]
+      )
+    ) {
+      return next()
+    }
+
     // Regex pattern check last past of URL endpoint
     const objectIdPattern = /^[0-9a-fA-F]{24}$/
     const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
@@ -36,18 +53,10 @@ const verifyPermissionMiddleware = async (
       baseUrl = req.path.replace(`/${lastPart}`, '') // If last part is a slug format, it will be replaced by empty string
     }
 
-    const roleInfo = await Role.findById(req.user?.role)
-
-    const permissionIds = roleInfo?.permissions || []
-
-    const listPermission = await Permission.find({
-      _id: { $in: permissionIds }
-    })
-
     if (
       listPermission.length > 0 &&
-      listPermission.some((el) =>
-        el.url.includes(baseUrl.split(BASE_URL_API_ENDPOINT)[1])
+      listPermission.some(
+        (el) => el.url === baseUrl.split(BASE_URL_API_ENDPOINT)[1]
       )
     ) {
       return next()

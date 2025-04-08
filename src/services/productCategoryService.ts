@@ -1,9 +1,17 @@
 import { StatusCodes } from 'http-status-codes'
+import {
+  LIMIT_DEFAULT,
+  PAGE_DEFAULT,
+  SORT,
+  SORT_BY_DEFAULT
+} from '~/constants/pagination'
 import ProductCategory from '~/models/productCategoryModel'
-import { IApiResponse } from '~/types/common'
+import { IApiResponse, IQueryParams } from '~/types/common'
 import {
   AddProductCategoryPayload,
-  EditProductCategoryPayload
+  EditProductCategoryPayload,
+  IProductCategory,
+  ProductCategoryList
 } from '~/types/productCategoryType'
 import ApiError from '~/utils/ApiError'
 import slugify from '~/utils/slugify'
@@ -124,11 +132,57 @@ const hardDeleteBySlug = async (slug: string): Promise<IApiResponse> => {
 
 const getAll = async (): Promise<IApiResponse> => {
   try {
-    const productCategories = await ProductCategory.find()
+    const productCategories = await ProductCategory.find({ _destroy: false })
     return {
       statusCode: StatusCodes.OK,
       message: 'Get all product categories are successfully.',
       data: productCategories
+    }
+  } catch (error) {
+    throw error
+  }
+}
+
+const getList = async (
+  query: IQueryParams
+): Promise<IApiResponse<ProductCategoryList>> => {
+  const {
+    page = PAGE_DEFAULT,
+    limit = LIMIT_DEFAULT,
+    sort = SORT.ASC,
+    sortBy = SORT_BY_DEFAULT
+  } = query
+  try {
+    const queries: Record<string, any> = {
+      _destroy: false
+    }
+
+    const options = {
+      skip: (Number(page) - 1) * Number(limit),
+      limit: Number(limit),
+      sort: { [sortBy]: sort }
+    }
+
+    const productCategories = (await ProductCategory.find(
+      queries,
+      null,
+      options
+    )) as IProductCategory[]
+    const total = await ProductCategory.countDocuments({})
+    const totalPages = Math.ceil(Number(total / Number(limit)))
+
+    return {
+      statusCode: StatusCodes.OK,
+      message: 'Get list product categories are successfully.',
+      data: {
+        productCategories,
+        pagination: {
+          currentPage: Number(page),
+          limit: Number(limit),
+          total,
+          totalPages
+        }
+      }
     }
   } catch (error) {
     throw error
@@ -140,7 +194,8 @@ const productCategoryService = {
   editBySlug,
   softDeleteBySlug,
   hardDeleteBySlug,
-  getAll
+  getAll,
+  getList
 }
 
 export default productCategoryService

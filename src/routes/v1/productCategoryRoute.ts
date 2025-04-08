@@ -186,4 +186,66 @@ router.delete(
  */
 router.get('/get-all-product-categories', productCategoryController.getAll)
 
+/**
+ * @swagger
+ * /product-categories/get-product-categories:
+ *   get:
+ *     tags:
+ *       - Product Categories
+ *     summary: Get list product categories with pagination
+ *     description: Get list product categories with pagination
+ *     parameters:
+ *        - in: query
+ *          name: page
+ *          schema:
+ *            type: interger
+ *          description: The number of page
+ *        - in: query
+ *          name: limit
+ *          schema:
+ *            type: interger
+ *          description: The number of items to return
+ *        - in: query
+ *          name: sort
+ *          schema:
+ *            type: string
+ *          description: Sort asc or desc by field sorted
+ *        - in: query
+ *          name: sortBy
+ *          schema:
+ *            type: string
+ *          description: What is field need to sort?
+ *     responses:
+ *        200:
+ *         description: Return list product categories is paginated.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: number
+ *                   example: 200
+ *                 message:
+ *                   type: string
+ *                   example: Get all permission is successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                      productCategories:
+ *                        type: array
+ *                      pagination:
+ *                        type: object
+ *                        properties:
+ *                          currentPage:
+ *                            type: number
+ *                          limit:
+ *                            type: number
+ *                          total:
+ *                            type: number
+ *                          totalPages:
+ *                            type: number
+ */
+router.get('/get-product-categories', productCategoryController.getList)
+
 export default router
