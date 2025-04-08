@@ -268,10 +268,10 @@ const refreshToken = async (
 }
 
 const logout = async (reqBody: LogoutBodyTypes): Promise<IApiResponse> => {
-  const { _id, refreshToken } = reqBody
+  const { refreshToken } = reqBody
 
   try {
-    const userExist = await User.findOne({ _id, refreshToken })
+    const userExist = await User.findOne({ refreshToken })
 
     if (!userExist) {
       throw new ApiError(StatusCodes.UNAUTHORIZED, 'Invalid refresh token.')

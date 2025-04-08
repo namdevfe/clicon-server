@@ -39,7 +39,7 @@ export type EditUserBodyTypes = Partial<
 
 export type RefreshTokenBodyTypes = Pick<IUser, 'refreshToken'>
 
-export type LogoutBodyTypes = Pick<IUser, '_id' | 'refreshToken'>
+export type LogoutBodyTypes = Pick<IUser, 'refreshToken'>
 
 export type AddUser = Omit<
   IUser,
