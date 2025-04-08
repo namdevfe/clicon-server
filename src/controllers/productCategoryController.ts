@@ -67,13 +67,28 @@ const getList = async (req: Request, res: Response, next: NextFunction) => {
   }
 }
 
+const getDetailsBySlug = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { slug } = req.params
+  try {
+    const response = await productCategoryService.getDetailsBySlug(slug)
+    res.status(response.statusCode).json(response)
+  } catch (error) {
+    next(error)
+  }
+}
+
 const productCategoryController = {
   addNew,
   editBySlug,
   softDeleteBySlug,
   hardDeleteBySlug,
   getAll,
-  getList
+  getList,
+  getDetailsBySlug
 }
 
 export default productCategoryController

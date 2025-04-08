@@ -248,4 +248,38 @@ router.get('/get-all-product-categories', productCategoryController.getAll)
  */
 router.get('/get-product-categories', productCategoryController.getList)
 
+/**
+ * @swagger
+ * /product-categories/get-product-category-details-by-slug/{slug}:
+ *   get:
+ *     tags:
+ *       - Product Categories
+ *     summary: Get product category details
+ *     description: Get product category details
+ *     parameters:
+ *        - in: path
+ *          name: slug
+ *          schema:
+ *            type: string
+ *          description: Slug of product category
+ *     responses:
+ *        200:
+ *         description: Return product category details.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: number
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ */
+router.get(
+  '/get-product-category-details-by-slug/:slug',
+  productCategoryController.getDetailsBySlug
+)
+
 export default router
