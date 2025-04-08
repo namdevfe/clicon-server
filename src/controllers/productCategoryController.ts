@@ -48,11 +48,21 @@ const hardDeleteBySlug = async (
   }
 }
 
+const getAll = async (_: Request, res: Response, next: NextFunction) => {
+  try {
+    const response = await productCategoryService.getAll()
+    res.status(response.statusCode).json(response)
+  } catch (error) {
+    next(error)
+  }
+}
+
 const productCategoryController = {
   addNew,
   editBySlug,
   softDeleteBySlug,
-  hardDeleteBySlug
+  hardDeleteBySlug,
+  getAll
 }
 
 export default productCategoryController

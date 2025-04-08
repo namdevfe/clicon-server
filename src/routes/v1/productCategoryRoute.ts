@@ -161,4 +161,29 @@ router.delete(
   productCategoryController.hardDeleteBySlug
 )
 
+/**
+ * @swagger
+ * /product-categories/get-all-product-categories:
+ *   get:
+ *     tags:
+ *       - Product Categories
+ *     summary: Get all product categories
+ *     description: Get all product categories
+ *     responses:
+ *        200:
+ *         description: Return all product categories.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: number
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: array
+ */
+router.get('/get-all-product-categories', productCategoryController.getAll)
+
 export default router
