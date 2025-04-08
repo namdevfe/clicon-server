@@ -122,11 +122,25 @@ const hardDeleteBySlug = async (slug: string): Promise<IApiResponse> => {
   }
 }
 
+const getAll = async (): Promise<IApiResponse> => {
+  try {
+    const productCategories = await ProductCategory.find()
+    return {
+      statusCode: StatusCodes.OK,
+      message: 'Get all product categories are successfully.',
+      data: productCategories
+    }
+  } catch (error) {
+    throw error
+  }
+}
+
 const productCategoryService = {
   addNew,
   editBySlug,
   softDeleteBySlug,
-  hardDeleteBySlug
+  hardDeleteBySlug,
+  getAll
 }
 
 export default productCategoryService
