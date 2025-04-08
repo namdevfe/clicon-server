@@ -43,10 +43,87 @@ router.post(
   productCategoryController.addNew
 )
 
+/**
+ * @swagger
+ * /product-categories/edit-product-category-by-slug/{slug}:
+ *   put:
+ *     tags:
+ *       - Product Categories
+ *     summary: Edit product category by slug
+ *     description: Edit product category by slug
+ *     parameters:
+ *      - in: path
+ *        name: slug
+ *        schema:
+ *          type: string
+ *        required: true
+ *        description: Slug of the product category to edit
+ *     requestBody:
+ *       description: Body data can edit product category
+ *       required: true
+ *       content:
+ *         application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              name:
+ *                type: string
+ *              description:
+ *                type: string
+ *       responses:
+ *        200:
+ *         description: Return data is edited.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: number
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ */
 router.put(
   '/edit-product-category-by-slug/:slug',
   productCategoryValidation.editBySlug,
   productCategoryController.editBySlug
+)
+
+/**
+ * @swagger
+ * /product-categories/soft-delete-product-category-by-slug/{slug}:
+ *   delete:
+ *     tags:
+ *       - Product Categories
+ *     summary: Delete product category by slug (soft delete)
+ *     description: Delete product category by id (soft delete)
+ *     parameters:
+ *      - in: path
+ *        name: slug
+ *        schema:
+ *          type: string
+ *        required: true
+ *        description: Slug of the product category to delete
+ *     responses:
+ *        200:
+ *         description: Return data is deleted.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: number
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ */
+router.delete(
+  '/soft-delete-product-category-by-slug/:slug',
+  productCategoryController.softDeleteBySlug
 )
 
 export default router
