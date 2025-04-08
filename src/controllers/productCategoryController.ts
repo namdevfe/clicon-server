@@ -20,6 +20,20 @@ const editBySlug = async (req: Request, res: Response, next: NextFunction) => {
   }
 }
 
-const productCategoryController = { addNew, editBySlug }
+const softDeleteBySlug = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { slug } = req.params
+  try {
+    const response = await productCategoryService.softDeleteBySlug(slug)
+    res.json(response)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const productCategoryController = { addNew, editBySlug, softDeleteBySlug }
 
 export default productCategoryController
