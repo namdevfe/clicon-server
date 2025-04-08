@@ -83,10 +83,6 @@ const refreshToken = async (
 
 const logout = async (req: Request, res: Response, next: NextFunction) => {
   const correctCondition = Joi.object<LogoutBodyTypes>({
-    _id: Joi.string()
-      .required()
-      .pattern(OBJECT_ID_RULE)
-      .message(OBJECT_ID_RULE_MESSAGE),
     refreshToken: Joi.string().required()
   })
 
