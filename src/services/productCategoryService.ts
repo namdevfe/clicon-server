@@ -98,6 +98,35 @@ const softDeleteBySlug = async (slug: string): Promise<IApiResponse> => {
   }
 }
 
-const productCategoryService = { addNew, editBySlug, softDeleteBySlug }
+const hardDeleteBySlug = async (slug: string): Promise<IApiResponse> => {
+  try {
+    const deletedProductCategory = await ProductCategory.findOneAndDelete(
+      { slug },
+      { new: true }
+    )
+
+    if (!deletedProductCategory) {
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        'Cannot find product category to delete.'
+      )
+    }
+
+    return {
+      statusCode: StatusCodes.OK,
+      message: `Deleted product category is successfully.`,
+      data: deletedProductCategory
+    }
+  } catch (error) {
+    throw error
+  }
+}
+
+const productCategoryService = {
+  addNew,
+  editBySlug,
+  softDeleteBySlug,
+  hardDeleteBySlug
+}
 
 export default productCategoryService
