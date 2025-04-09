@@ -1,8 +1,6 @@
 import express from 'express'
 import brandController from '~/controllers/brandController'
-import productCategoryController from '~/controllers/productCategoryController'
 import brandValidation from '~/validations/brandValidation'
-import productCategoryValidation from '~/validations/productCategoryValidation'
 
 const router = express.Router()
 
