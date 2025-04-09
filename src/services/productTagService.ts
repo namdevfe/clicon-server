@@ -5,26 +5,26 @@ import {
   SORT,
   SORT_BY_DEFAULT
 } from '~/constants/pagination'
-import Brand from '~/models/brandModel'
-import {
-  AddBrandPayload,
-  BrandList,
-  EditBrandPayload,
-  IBrand
-} from '~/types/brandType'
+import ProductTag from '~/models/productTagModel'
 import { IApiResponse, IQueryParams } from '~/types/common'
+import {
+  AddProductTagPayload,
+  EditProductTagPayload,
+  IProductTag,
+  ProductTagList
+} from '~/types/productTagType'
 import ApiError from '~/utils/ApiError'
 import slugify from '~/utils/slugify'
 
-const addNew = async (payload: AddBrandPayload): Promise<IApiResponse> => {
+const addNew = async (payload: AddProductTagPayload): Promise<IApiResponse> => {
   const { name } = payload
   try {
-    const existingBrand = await Brand.findOne({ name })
+    const existingProductTag = await ProductTag.findOne({ name })
 
-    if (existingBrand?._id) {
+    if (existingProductTag?._id) {
       throw new ApiError(
         StatusCodes.BAD_REQUEST,
-        `Brand ${name} already exist.`
+        `Product tag ${name} already exist.`
       )
     }
 
@@ -34,12 +34,12 @@ const addNew = async (payload: AddBrandPayload): Promise<IApiResponse> => {
       slug: slugify(name)
     }
 
-    const addedBrand = await Brand.create(addData)
+    const addedProductTag = await ProductTag.create(addData)
 
     return {
       statusCode: StatusCodes.CREATED,
-      message: 'Added new brand is successfully.',
-      data: addedBrand
+      message: 'Added new product tag is successfully.',
+      data: addedProductTag
     }
   } catch (error) {
     throw error
@@ -48,16 +48,16 @@ const addNew = async (payload: AddBrandPayload): Promise<IApiResponse> => {
 
 const editBySlug = async (
   slug: string,
-  payload: EditBrandPayload
+  payload: EditProductTagPayload
 ): Promise<IApiResponse> => {
   const { name } = payload
   try {
-    const existingBrand = await Brand.findOne({ name })
+    const existingProductTag = await ProductTag.findOne({ name })
 
-    if (existingBrand) {
+    if (existingProductTag) {
       throw new ApiError(
         StatusCodes.BAD_REQUEST,
-        'This name brand already exist. Please try the other name.'
+        'This product tag name already exist. Please try the other name.'
       )
     }
 
@@ -66,14 +66,18 @@ const editBySlug = async (
       slug: name && slugify(name)
     }
 
-    const editedBrand = await Brand.findOneAndUpdate({ slug }, editData, {
-      new: true
-    })
+    const editedProductTag = await ProductTag.findOneAndUpdate(
+      { slug },
+      editData,
+      {
+        new: true
+      }
+    )
 
     return {
       statusCode: StatusCodes.OK,
-      message: 'Edited brand is succesfully.',
-      data: editedBrand
+      message: 'Edited product tag is succesfully.',
+      data: editedProductTag
     }
   } catch (error) {
     throw error
@@ -82,23 +86,23 @@ const editBySlug = async (
 
 const softDeleteBySlug = async (slug: string): Promise<IApiResponse> => {
   try {
-    const deletedBrand = await Brand.findOneAndUpdate(
+    const deletedProductTag = await ProductTag.findOneAndUpdate(
       { slug },
       { _destroy: true },
       { new: true }
     )
 
-    if (!deletedBrand) {
+    if (!deletedProductTag) {
       throw new ApiError(
         StatusCodes.NOT_FOUND,
-        'Cannot find product category to delete'
+        'Cannot find product tag to delete'
       )
     }
 
     return {
       statusCode: StatusCodes.OK,
-      message: `Deleted brand is successfully.`,
-      data: deletedBrand
+      message: `Deleted product tag is successfully.`,
+      data: deletedProductTag
     }
   } catch (error) {
     throw error
@@ -107,19 +111,22 @@ const softDeleteBySlug = async (slug: string): Promise<IApiResponse> => {
 
 const hardDeleteBySlug = async (slug: string): Promise<IApiResponse> => {
   try {
-    const deletedBrand = await Brand.findOneAndDelete({ slug }, { new: true })
+    const deletedProductTag = await ProductTag.findOneAndDelete(
+      { slug },
+      { new: true }
+    )
 
-    if (!deletedBrand) {
+    if (!deletedProductTag) {
       throw new ApiError(
         StatusCodes.NOT_FOUND,
-        'Cannot find product category to delete.'
+        'Cannot find product tag to delete.'
       )
     }
 
     return {
       statusCode: StatusCodes.OK,
-      message: `Deleted brand is successfully.`,
-      data: deletedBrand
+      message: `Deleted product tag is successfully.`,
+      data: deletedProductTag
     }
   } catch (error) {
     throw error
@@ -128,11 +135,11 @@ const hardDeleteBySlug = async (slug: string): Promise<IApiResponse> => {
 
 const getAll = async (): Promise<IApiResponse> => {
   try {
-    const brands = await Brand.find({ _destroy: false })
+    const productTags = await ProductTag.find({ _destroy: false })
     return {
       statusCode: StatusCodes.OK,
-      message: 'Get all brands are successfully.',
-      data: brands
+      message: 'Get all product tags are successfully.',
+      data: productTags
     }
   } catch (error) {
     throw error
@@ -141,7 +148,7 @@ const getAll = async (): Promise<IApiResponse> => {
 
 const getList = async (
   query: IQueryParams
-): Promise<IApiResponse<BrandList>> => {
+): Promise<IApiResponse<ProductTagList>> => {
   const {
     page = PAGE_DEFAULT,
     limit = LIMIT_DEFAULT,
@@ -159,15 +166,19 @@ const getList = async (
       sort: { [sortBy]: sort }
     }
 
-    const brands = (await Brand.find(queries, null, options)) as IBrand[]
-    const total = await Brand.countDocuments({})
+    const productTags = (await ProductTag.find(
+      queries,
+      null,
+      options
+    )) as IProductTag[]
+    const total = await ProductTag.countDocuments({})
     const totalPages = Math.ceil(Number(total / Number(limit)))
 
     return {
       statusCode: StatusCodes.OK,
-      message: 'Get list brands are successfully.',
+      message: 'Get list product tags are successfully.',
       data: {
-        brands,
+        productTags,
         pagination: {
           currentPage: Number(page),
           limit: Number(limit),
@@ -183,21 +194,21 @@ const getList = async (
 
 const getDetailsBySlug = async (slug: string): Promise<IApiResponse> => {
   try {
-    const brandDetails = await Brand.findOne({ slug })
-    if (!brandDetails) {
-      throw new ApiError(StatusCodes.NOT_FOUND, 'Cannot find brand.')
+    const productTagDetails = await ProductTag.findOne({ slug })
+    if (!productTagDetails) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Cannot find product tag.')
     }
     return {
       statusCode: StatusCodes.OK,
-      message: 'Get brand details is successfully.',
-      data: brandDetails
+      message: 'Get product tag details is successfully.',
+      data: productTagDetails
     }
   } catch (error) {
     throw error
   }
 }
 
-const brandService = {
+const productTagService = {
   addNew,
   editBySlug,
   softDeleteBySlug,
@@ -207,4 +218,4 @@ const brandService = {
   getDetailsBySlug
 }
 
-export default brandService
+export default productTagService

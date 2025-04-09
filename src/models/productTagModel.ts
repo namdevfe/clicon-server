@@ -17,6 +17,6 @@ const productTagSchema = new Schema(
   }
 )
 
-const productTag = model(PRODUCT_TAG_COLLECTION_NAME, productTagSchema)
+const ProductTag = model(PRODUCT_TAG_COLLECTION_NAME, productTagSchema)
 
-export default productTag
+export default ProductTag
