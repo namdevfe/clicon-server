@@ -6,4 +6,13 @@ export const AUTH_PATHS = [
   '/auth/logout'
 ]
 
-export const PUBLIC_PATHS = ['/api-docs', '/']
+export const PUBLIC_PATHS = [
+  '/api-docs',
+  '/',
+  '/brands/get-all-brands',
+  '/brands/get-brands',
+  '/product-categories/get-all-product-categories',
+  '/product-categories/get-product-categories',
+  '/product-tags/get-all-tags',
+  '/product-tags/get-product-tags'
+]
