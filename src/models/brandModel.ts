@@ -7,7 +7,6 @@ const brandSchema = new Schema(
     name: { type: String, required: true, unique: true },
     slug: { type: String, required: true, unique: true },
     description: String,
-    image: { type: String },
     _destroy: {
       type: Boolean,
       default: false
