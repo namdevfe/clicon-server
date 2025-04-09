@@ -1,5 +1,7 @@
 import { StatusCodes } from 'http-status-codes'
+import mongoose from 'mongoose'
 import Role from '~/models/roleModel'
+import User from '~/models/userModel'
 import { IApiResponse, IQueryParams } from '~/types/common'
 import { AddRoleBodyTypes, EditRoleBodyTypes } from '~/types/roleType'
 import ApiError from '~/utils/ApiError'
@@ -140,6 +142,12 @@ const getRoleDetails = async (id: string): Promise<IApiResponse> => {
 
 const deleteRoleById = async (id: string): Promise<IApiResponse> => {
   const deletedRole = await Role.findByIdAndDelete(id, { new: true })
+
+  if (!deletedRole) {
+    throw new ApiError(StatusCodes.NOT_FOUND, 'Role does not exist!')
+  }
+
+  await User.updateMany({ role: deletedRole._id }, { $unset: { role: 1 } })
 
   return {
     statusCode: StatusCodes.OK,
