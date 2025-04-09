@@ -1,5 +1,7 @@
 import { StatusCodes } from 'http-status-codes'
 import Permission from '~/models/permissionModel'
+import Role from '~/models/roleModel'
+import User from '~/models/userModel'
 import { IApiResponse, IQueryParams } from '~/types/common'
 import {
   AddPermissionBodyTypes,
@@ -144,6 +146,15 @@ const edit = async (
 const deleteById = async (id: string): Promise<IApiResponse> => {
   try {
     const deletedPermission = await Permission.findByIdAndDelete(id)
+
+    if (!deletedPermission) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Permission does not exist.')
+    }
+
+    await Role.updateMany(
+      { permissions: deletedPermission._id },
+      { $pull: { permissions: deletedPermission._id } }
+    )
 
     return {
       statusCode: StatusCodes.OK,
