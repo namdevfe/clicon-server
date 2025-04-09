@@ -1,11 +1,14 @@
 import { NextFunction, Request, Response } from 'express'
 import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
-import { AddBrandPayload, EditBrandPayload } from '~/types/brandType'
+import {
+  AddProductTagPayload,
+  EditProductTagPayload
+} from '~/types/productTagType'
 import ApiError from '~/utils/ApiError'
 
 const addNew = async (req: Request, _: Response, next: NextFunction) => {
-  const addNewSchema = Joi.object<AddBrandPayload>({
+  const addNewSchema = Joi.object<AddProductTagPayload>({
     name: Joi.string().required().trim().strict(),
     description: Joi.string().optional().allow('')
   })
@@ -19,7 +22,7 @@ const addNew = async (req: Request, _: Response, next: NextFunction) => {
 }
 
 const editBySlug = async (req: Request, _: Response, next: NextFunction) => {
-  const editSchema = Joi.object<EditBrandPayload>({
+  const editSchema = Joi.object<EditProductTagPayload>({
     name: Joi.string().required().trim().strict(),
     description: Joi.string().optional().allow('').trim().strict()
   })
@@ -32,9 +35,9 @@ const editBySlug = async (req: Request, _: Response, next: NextFunction) => {
   }
 }
 
-const brandValidation = {
+const productTagValidation = {
   addNew,
   editBySlug
 }
 
-export default brandValidation
+export default productTagValidation
