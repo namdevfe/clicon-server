@@ -6,6 +6,7 @@ import {
   SORT_BY_DEFAULT
 } from '~/constants/pagination'
 import ProductCategory from '~/models/productCategoryModel'
+import Product from '~/models/productModel'
 import { IApiResponse, IQueryParams } from '~/types/common'
 import {
   AddProductCategoryPayload,
@@ -96,6 +97,12 @@ const softDeleteBySlug = async (slug: string): Promise<IApiResponse> => {
       )
     }
 
+    // Update category on product
+    await Product.updateMany(
+      { category: deletedProductCategory._id },
+      { $unset: { category: 1 } }
+    )
+
     return {
       statusCode: StatusCodes.OK,
       message: `Deleted product category is successfully.`,
@@ -119,6 +126,12 @@ const hardDeleteBySlug = async (slug: string): Promise<IApiResponse> => {
         'Cannot find product category to delete.'
       )
     }
+
+    // Update category on product
+    await Product.updateMany(
+      { category: deletedProductCategory._id },
+      { $unset: { category: 1 } }
+    )
 
     return {
       statusCode: StatusCodes.OK,

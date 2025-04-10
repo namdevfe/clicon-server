@@ -15,7 +15,7 @@ const addNew = async (req: Request, res: Response, next: NextFunction) => {
     specification: Joi.string().optional().allow(''),
     stock: Joi.number().default(0),
     totalRatings: Joi.number().default(0),
-    imageCover: Joi.string().trim().strict(),
+    imageCover: Joi.string().required().trim().strict(),
     images: Joi.array().items(Joi.string().trim().strict()).default([]),
     category: Joi.string()
       .required()
