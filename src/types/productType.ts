@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import { IBaseType } from '~/types/common'
+import { IBaseType, IPagination } from '~/types/common'
 
 export interface IProduct extends IBaseType {
   _id: mongoose.Types.ObjectId
@@ -27,3 +27,8 @@ export type AddProductPayload = Omit<
 export type EditProductPayload = Partial<
   Omit<IProduct, '_id' | 'slug' | 'createdAt' | 'updatedAt' | '_destroy'>
 >
+
+export type ProductList = {
+  products: IProduct[]
+  pagination: IPagination
+}

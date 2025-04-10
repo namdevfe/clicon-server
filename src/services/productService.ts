@@ -1,7 +1,18 @@
 import { StatusCodes } from 'http-status-codes'
+import {
+  LIMIT_DEFAULT,
+  PAGE_DEFAULT,
+  SORT,
+  SORT_BY_DEFAULT
+} from '~/constants/pagination'
 import Product from '~/models/productModel'
-import { IApiResponse } from '~/types/common'
-import { AddProductPayload, EditProductPayload } from '~/types/productType'
+import { IApiResponse, IQueryParams } from '~/types/common'
+import {
+  AddProductPayload,
+  EditProductPayload,
+  IProduct,
+  ProductList
+} from '~/types/productType'
 import ApiError from '~/utils/ApiError'
 import slugify from '~/utils/slugify'
 
@@ -77,10 +88,53 @@ const getAll = async (): Promise<IApiResponse> => {
   }
 }
 
+const getList = async (
+  query: IQueryParams
+): Promise<IApiResponse<ProductList>> => {
+  const {
+    page = PAGE_DEFAULT,
+    limit = LIMIT_DEFAULT,
+    sort = SORT.ASC,
+    sortBy = SORT_BY_DEFAULT
+  } = query || {}
+  try {
+    const queries: Record<string, any> = {
+      _destroy: false
+    }
+
+    const options = {
+      skip: (Number(page) - 1) * Number(limit),
+      limit: +limit,
+      sort: { [sortBy as string]: sort }
+    }
+
+    const products = (await Product.find(queries, null, options)) as IProduct[]
+    const total = await Product.countDocuments()
+    const totalPages = Math.ceil(Number(total) / Number(limit))
+
+    return {
+      statusCode: StatusCodes.OK,
+      message: 'Get list products are successfully.',
+      data: {
+        products,
+        pagination: {
+          currentPage: +page,
+          limit: +limit,
+          total,
+          totalPages
+        }
+      }
+    }
+  } catch (error) {
+    throw error
+  }
+}
+
 const productService = {
   addNew,
   edit,
-  getAll
+  getAll,
+  getList
 }
 
 export default productService

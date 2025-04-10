@@ -200,4 +200,64 @@ router.put(
  */
 router.get('/get-all-products', productController.getAll)
 
+/**
+ * @swagger
+ * /products/get-products:
+ *   get:
+ *     tags:
+ *       - Products
+ *     summary: Get list products with pagination
+ *     description: Get list products with pagination
+ *     parameters:
+ *        - in: query
+ *          name: page
+ *          schema:
+ *            type: interger
+ *          description: The number of page
+ *        - in: query
+ *          name: limit
+ *          schema:
+ *            type: interger
+ *          description: The number of items to return
+ *        - in: query
+ *          name: sort
+ *          schema:
+ *            type: string
+ *          description: Sort asc or desc by field sorted
+ *        - in: query
+ *          name: sortBy
+ *          schema:
+ *            type: string
+ *          description: What is field need to sort?
+ *     responses:
+ *        200:
+ *         description: Return list products is paginated.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: number
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                      products:
+ *                        type: array
+ *                      pagination:
+ *                        type: object
+ *                        properties:
+ *                          currentPage:
+ *                            type: number
+ *                          limit:
+ *                            type: number
+ *                          total:
+ *                            type: number
+ *                          totalPages:
+ *                            type: number
+ */
+router.get('/get-products', productController.getList)
+
 export default router
