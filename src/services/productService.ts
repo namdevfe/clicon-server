@@ -5,7 +5,9 @@ import {
   SORT,
   SORT_BY_DEFAULT
 } from '~/constants/pagination'
-import ProductAttribute from '~/models/productAttributeModel'
+import ProductAttribute, {
+  PRODUCT_ATTRIBUTE_COLLECTION_NAME
+} from '~/models/productAttributeModel'
 import ProductAttributeValue from '~/models/productAttributeValueModel'
 import Product from '~/models/productModel'
 import { IApiResponse, IQueryParams } from '~/types/common'
@@ -114,12 +116,19 @@ const edit = async (
           })
         }
 
-        // Add value to attribute value collection
-        await ProductAttributeValue.create({
+        // Check attribute value is created before
+        const existingAttributeValue = await ProductAttributeValue.findOne({
           product: editedProduct._id,
-          attribute: addedAttribute?._id,
           value: attribute.value
         })
+        if (!existingAttributeValue) {
+          // Add value to attribute value collection
+          await ProductAttributeValue.create({
+            product: editedProduct._id,
+            attribute: addedAttribute?._id,
+            value: attribute.value
+          })
+        }
       }
     }
 
@@ -197,10 +206,22 @@ const getDetails = async (slug: string): Promise<IApiResponse> => {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Product does not exist!')
     }
 
+    const attributeValues = await ProductAttributeValue.find({
+      product: productDetails._id
+    }).populate('attribute')
+
+    const attributes = attributeValues.map((item: any) => ({
+      name: item.attribute?.name,
+      value: item.value
+    }))
+
     return {
       statusCode: StatusCodes.OK,
       message: 'Get product details is successfully.',
-      data: productDetails
+      data: {
+        ...productDetails.toObject(),
+        attributes
+      }
     }
   } catch (error) {
     throw error
