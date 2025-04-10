@@ -34,6 +34,6 @@ const productSchema = new Schema(
   }
 )
 
-const Brand = model(PRODUCT_COLLECTION_NAME, productSchema)
+const Product = model(PRODUCT_COLLECTION_NAME, productSchema)
 
-export default Brand
+export default Product
