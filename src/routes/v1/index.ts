@@ -5,6 +5,7 @@ import permissionRoutes from './permissionRoute'
 import roleRoutes from './roleRoute'
 import userRoutes from './userRoute'
 import brandRoutes from './brandRoute'
+import productRoutes from './productRoute'
 import productTagRoutes from './productTagRoute'
 import productCategoryRoutes from './productCategoryRoute'
 import verifyTokenMiddleware from '~/middlewares/verifyTokenMiddleware'
@@ -21,6 +22,7 @@ const APIs_V1 = (app: Application) => {
   app.use(`${BASE_URL_API_ENDPOINT}/product-categories`, productCategoryRoutes)
   app.use(`${BASE_URL_API_ENDPOINT}/brands`, brandRoutes)
   app.use(`${BASE_URL_API_ENDPOINT}/product-tags`, productTagRoutes)
+  app.use(`${BASE_URL_API_ENDPOINT}/products`, productRoutes)
 
   app.use(errorHandlerMiddleware)
 }
