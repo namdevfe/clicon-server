@@ -81,11 +81,11 @@ const edit = async (
   slug: string,
   payload: EditProductPayload
 ): Promise<IApiResponse> => {
-  const { name } = payload
+  const { attributes = [], ...editPayload } = payload
   try {
     const editData = {
-      ...payload,
-      slug: name && slugify(name)
+      ...editPayload,
+      slug: editPayload.name && slugify(editPayload.name)
     }
 
     const editedProduct = await Product.findOneAndUpdate({ slug }, editData, {
@@ -94,6 +94,33 @@ const edit = async (
 
     if (!editedProduct) {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Product does not exist!')
+    }
+
+    if (attributes.length > 0) {
+      for (const attribute of attributes) {
+        // Check attribute already exist
+        const existingAttribute = await ProductAttribute.findOne({
+          name: attribute.name
+        })
+        // Add name to attribute collection
+        let addedAttribute = null
+        if (!existingAttribute) {
+          addedAttribute = await ProductAttribute.create({
+            name: attribute.name
+          })
+        } else {
+          addedAttribute = await ProductAttribute.findOne({
+            name: attribute.name
+          })
+        }
+
+        // Add value to attribute value collection
+        await ProductAttributeValue.create({
+          product: editedProduct._id,
+          attribute: addedAttribute?._id,
+          value: attribute.value
+        })
+      }
     }
 
     return {

@@ -28,7 +28,9 @@ export type AddProductPayload = Omit<
 
 export type EditProductPayload = Partial<
   Omit<IProduct, '_id' | 'slug' | 'createdAt' | 'updatedAt' | '_destroy'>
->
+> & {
+  attributes: { name: string; value: string }[]
+}
 
 export type ProductList = {
   products: IProduct[]

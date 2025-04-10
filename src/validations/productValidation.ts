@@ -84,7 +84,13 @@ const edit = async (req: Request, _: Response, next: NextFunction) => {
           .trim()
           .strict()
       )
-      .default([])
+      .default([]),
+    attributes: Joi.array().items(
+      Joi.object({
+        name: Joi.string().trim().strict(),
+        value: Joi.string().trim().strict()
+      })
+    )
   })
 
   try {
