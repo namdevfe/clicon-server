@@ -15,28 +15,11 @@ const verifyPermissionMiddleware = async (
     let baseUrl = req.path
 
     // If path is public api then run next(). Don't check token is sent on header request
-    const isPubicPath = [...AUTH_PATHS, ...PUBLIC_PATHS].includes(
-      baseUrl.split(BASE_URL_API_ENDPOINT)[1]
-    )
-
-    if (isPubicPath) {
-      return next()
-    }
-
-    const roleInfo = await Role.findById(req.user?.role)
-
-    const permissionIds = roleInfo?.permissions || []
-
-    const listPermission = await Permission.find({
-      _id: { $in: permissionIds }
+    const isPublicPath = [...AUTH_PATHS, ...PUBLIC_PATHS].some((path) => {
+      return baseUrl.split(BASE_URL_API_ENDPOINT)[1].startsWith(path)
     })
 
-    if (
-      listPermission.length > 0 &&
-      listPermission.some(
-        (el) => el.url === baseUrl.split(BASE_URL_API_ENDPOINT)[1]
-      )
-    ) {
+    if (isPublicPath) {
       return next()
     }
 
@@ -52,6 +35,14 @@ const verifyPermissionMiddleware = async (
     } else if (slugPattern.test(lastPart)) {
       baseUrl = req.path.replace(`/${lastPart}`, '') // If last part is a slug format, it will be replaced by empty string
     }
+
+    const roleInfo = await Role.findById(req.user?.role)
+
+    const permissionIds = roleInfo?.permissions || []
+
+    const listPermission = await Permission.find({
+      _id: { $in: permissionIds }
+    })
 
     if (
       listPermission.length > 0 &&

@@ -38,11 +38,22 @@ const getList = async (req: Request, res: Response, next: NextFunction) => {
   }
 }
 
+const getDetails = async (req: Request, res: Response, next: NextFunction) => {
+  const { slug } = req.params
+  try {
+    const response = await productService.getDetails(slug)
+    res.status(response.statusCode).json(response)
+  } catch (error) {
+    next(error)
+  }
+}
+
 const productController = {
   addNew,
   edit,
   getAll,
-  getList
+  getList,
+  getDetails
 }
 
 export default productController
