@@ -42,14 +42,26 @@ const addNew = async (payload: AddProductPayload): Promise<IApiResponse> => {
 
     if (attributes.length > 0) {
       for (const attribute of attributes) {
-        // Add name to attribute collection
-        const addedAttribute = await ProductAttribute.create({
+        // Check attribute already exist
+        const existingAttribute = await ProductAttribute.findOne({
           name: attribute.name
         })
+        // Add name to attribute collection
+        let addedAttribute = null
+        if (!existingAttribute) {
+          addedAttribute = await ProductAttribute.create({
+            name: attribute.name
+          })
+        } else {
+          addedAttribute = await ProductAttribute.findOne({
+            name: attribute.name
+          })
+        }
+
         // Add value to attribute value collection
         await ProductAttributeValue.create({
           product: addedProduct._id,
-          attribute: addedAttribute._id,
+          attribute: addedAttribute?._id,
           value: attribute.value
         })
       }
