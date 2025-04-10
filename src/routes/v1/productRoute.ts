@@ -175,4 +175,29 @@ router.put(
   productController.edit
 )
 
+/**
+ * @swagger
+ * /products/get-all-products:
+ *   get:
+ *     tags:
+ *       - Products
+ *     summary: Get all products
+ *     description: Get all products
+ *     responses:
+ *        200:
+ *         description: Return all products.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: number
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: array
+ */
+router.get('/get-all-products', productController.getAll)
+
 export default router

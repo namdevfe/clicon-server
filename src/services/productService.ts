@@ -63,9 +63,24 @@ const edit = async (
   }
 }
 
+const getAll = async (): Promise<IApiResponse> => {
+  try {
+    const products = await Product.find({ _destroy: false })
+
+    return {
+      statusCode: StatusCodes.OK,
+      message: 'Get all products are successfully.',
+      data: products
+    }
+  } catch (error) {
+    throw error
+  }
+}
+
 const productService = {
   addNew,
-  edit
+  edit,
+  getAll
 }
 
 export default productService
