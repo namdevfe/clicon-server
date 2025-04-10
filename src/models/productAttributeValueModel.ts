@@ -1,4 +1,4 @@
-import { model, Schema } from 'mongoose'
+import mongoose, { model, Schema } from 'mongoose'
 import { PRODUCT_ATTRIBUTE_COLLECTION_NAME } from '~/models/productAttributeModel'
 import { PRODUCT_COLLECTION_NAME } from '~/models/productModel'
 
@@ -22,7 +22,8 @@ const productAttributeValueSchema = new Schema(
     }
   },
   {
-    timestamps: true
+    timestamps: true,
+    strictPopulate: false
   }
 )
 
