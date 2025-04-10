@@ -10,8 +10,19 @@ const addNew = async (req: Request, res: Response, next: NextFunction) => {
   }
 }
 
+const edit = async (req: Request, res: Response, next: NextFunction) => {
+  const { slug } = req.params
+  try {
+    const response = await productService.edit(slug, req.body)
+    res.status(response.statusCode).json(response)
+  } catch (error) {
+    next(error)
+  }
+}
+
 const productController = {
-  addNew
+  addNew,
+  edit
 }
 
 export default productController

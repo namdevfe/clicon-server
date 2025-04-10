@@ -1,7 +1,7 @@
 import { StatusCodes } from 'http-status-codes'
 import Product from '~/models/productModel'
 import { IApiResponse } from '~/types/common'
-import { AddProductPayload } from '~/types/productType'
+import { AddProductPayload, EditProductPayload } from '~/types/productType'
 import ApiError from '~/utils/ApiError'
 import slugify from '~/utils/slugify'
 
@@ -34,8 +34,38 @@ const addNew = async (payload: AddProductPayload): Promise<IApiResponse> => {
   }
 }
 
+const edit = async (
+  slug: string,
+  payload: EditProductPayload
+): Promise<IApiResponse> => {
+  const { name } = payload
+  try {
+    const editData = {
+      ...payload,
+      slug: name && slugify(name)
+    }
+
+    const editedProduct = await Product.findOneAndUpdate({ slug }, editData, {
+      new: true
+    })
+
+    if (!editedProduct) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Product does not exist!')
+    }
+
+    return {
+      statusCode: StatusCodes.OK,
+      message: 'Edited product is successfully.',
+      data: editedProduct
+    }
+  } catch (error) {
+    throw error
+  }
+}
+
 const productService = {
-  addNew
+  addNew,
+  edit
 }
 
 export default productService
