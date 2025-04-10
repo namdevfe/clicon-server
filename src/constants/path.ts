@@ -14,5 +14,6 @@ export const PUBLIC_PATHS = [
   '/product-categories/get-all-product-categories',
   '/product-categories/get-product-categories',
   '/product-tags/get-all-tags',
-  '/product-tags/get-product-tags'
+  '/product-tags/get-product-tags',
+  '/products/get-all-products'
 ]
