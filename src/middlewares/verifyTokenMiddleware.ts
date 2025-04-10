@@ -12,11 +12,13 @@ const verifyTokenMiddleware = async (
   next: NextFunction
 ) => {
   try {
-    if (
-      [...AUTH_PATHS, ...PUBLIC_PATHS].some(
-        (path) => req.path.split(BASE_URL_API_ENDPOINT)[1] === path
-      )
-    ) {
+    let baseUrl = req.path
+
+    const isPublicPath = [...AUTH_PATHS, ...PUBLIC_PATHS].some((path) => {
+      return baseUrl.split(BASE_URL_API_ENDPOINT)[1].startsWith(path)
+    })
+
+    if (isPublicPath) {
       return next()
     }
 

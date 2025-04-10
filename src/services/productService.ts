@@ -130,11 +130,30 @@ const getList = async (
   }
 }
 
+const getDetails = async (slug: string): Promise<IApiResponse> => {
+  try {
+    const productDetails = await Product.findOne({ slug })
+
+    if (!productDetails) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Product does not exist!')
+    }
+
+    return {
+      statusCode: StatusCodes.OK,
+      message: 'Get product details is successfully.',
+      data: productDetails
+    }
+  } catch (error) {
+    throw error
+  }
+}
+
 const productService = {
   addNew,
   edit,
   getAll,
-  getList
+  getList,
+  getDetails
 }
 
 export default productService
