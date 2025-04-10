@@ -32,8 +32,6 @@ const verifyPermissionMiddleware = async (
 
     if (objectIdPattern.test(lastPart)) {
       baseUrl = req.path.replace(`/${lastPart}`, '') // If last part is a objectId, it will be replaced by empty string
-    } else if (slugPattern.test(lastPart)) {
-      baseUrl = req.path.replace(`/${lastPart}`, '') // If last part is a slug format, it will be replaced by empty string
     }
 
     const roleInfo = await Role.findById(req.user?.role)
@@ -46,8 +44,8 @@ const verifyPermissionMiddleware = async (
 
     if (
       listPermission.length > 0 &&
-      listPermission.some(
-        (el) => el.url === baseUrl.split(BASE_URL_API_ENDPOINT)[1]
+      listPermission.some((el) =>
+        baseUrl.split(BASE_URL_API_ENDPOINT)[1].startsWith(el.url)
       )
     ) {
       return next()
