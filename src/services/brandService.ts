@@ -6,6 +6,7 @@ import {
   SORT_BY_DEFAULT
 } from '~/constants/pagination'
 import Brand from '~/models/brandModel'
+import Product from '~/models/productModel'
 import {
   AddBrandPayload,
   BrandList,
@@ -95,6 +96,12 @@ const softDeleteBySlug = async (slug: string): Promise<IApiResponse> => {
       )
     }
 
+    // Update brand on product
+    await Product.updateMany(
+      { brand: deletedBrand._id },
+      { $unset: { brand: 1 } }
+    )
+
     return {
       statusCode: StatusCodes.OK,
       message: `Deleted brand is successfully.`,
@@ -115,6 +122,12 @@ const hardDeleteBySlug = async (slug: string): Promise<IApiResponse> => {
         'Cannot find product category to delete.'
       )
     }
+
+    // Update brand on product
+    await Product.updateMany(
+      { brand: deletedBrand._id },
+      { $unset: { brand: 1 } }
+    )
 
     return {
       statusCode: StatusCodes.OK,
