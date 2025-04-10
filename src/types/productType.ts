@@ -23,3 +23,7 @@ export type AddProductPayload = Omit<
   IProduct,
   '_id' | 'slug' | '_destroy' | 'createdAt' | 'updatedAt'
 >
+
+export type EditProductPayload = Partial<
+  Omit<IProduct, '_id' | 'slug' | 'createdAt' | 'updatedAt' | '_destroy'>
+>
