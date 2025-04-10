@@ -5,6 +5,8 @@ import {
   SORT,
   SORT_BY_DEFAULT
 } from '~/constants/pagination'
+import ProductAttribute from '~/models/productAttributeModel'
+import ProductAttributeValue from '~/models/productAttributeValueModel'
 import Product from '~/models/productModel'
 import { IApiResponse, IQueryParams } from '~/types/common'
 import {
@@ -17,9 +19,11 @@ import ApiError from '~/utils/ApiError'
 import slugify from '~/utils/slugify'
 
 const addNew = async (payload: AddProductPayload): Promise<IApiResponse> => {
-  const { name } = payload
+  const { attributes = [], ...addProductPayload } = payload
   try {
-    const existingProduct = await Product.findOne({ name })
+    const existingProduct = await Product.findOne({
+      name: addProductPayload.name
+    })
 
     if (existingProduct) {
       throw new ApiError(
@@ -28,12 +32,28 @@ const addNew = async (payload: AddProductPayload): Promise<IApiResponse> => {
       )
     }
 
+    // Add product
     const addData = {
-      ...payload,
-      slug: slugify(payload.name)
+      ...addProductPayload,
+      slug: slugify(addProductPayload.name)
     }
 
     const addedProduct = await Product.create(addData)
+
+    if (attributes.length > 0) {
+      for (const attribute of attributes) {
+        // Add name to attribute collection
+        const addedAttribute = await ProductAttribute.create({
+          name: attribute.name
+        })
+        // Add value to attribute value collection
+        await ProductAttributeValue.create({
+          product: addedProduct._id,
+          attribute: addedAttribute._id,
+          value: attribute.value
+        })
+      }
+    }
 
     return {
       statusCode: StatusCodes.CREATED,

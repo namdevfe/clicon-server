@@ -35,6 +35,12 @@ const addNew = async (req: Request, _: Response, next: NextFunction) => {
         .message(OBJECT_ID_RULE_MESSAGE)
         .trim()
         .strict()
+    ),
+    attributes: Joi.array().items(
+      Joi.object({
+        name: Joi.string().trim().strict(),
+        value: Joi.string().trim().strict()
+      })
     )
   })
 
