@@ -7,7 +7,7 @@ import ApiError from '~/utils/ApiError'
 const addNew = async (req: Request, _: Response, next: NextFunction) => {
   const addNewSchema = Joi.object<AddBrandPayload>({
     name: Joi.string().required().trim().strict(),
-    description: Joi.string().optional().allow('')
+    description: Joi.string().optional().allow('').trim().strict()
   })
 
   try {
