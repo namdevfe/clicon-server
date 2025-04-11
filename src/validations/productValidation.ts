@@ -41,6 +41,20 @@ const addNew = async (req: Request, _: Response, next: NextFunction) => {
         name: Joi.string().trim().strict(),
         value: Joi.string().trim().strict()
       })
+    ),
+    variants: Joi.array().items(
+      Joi.object({
+        name: Joi.string().trim().strict(),
+        values: Joi.array().items(Joi.string().trim().strict())
+      })
+    ),
+    variantValues: Joi.array().items(
+      Joi.object({
+        variantCombination: Joi.array().items(Joi.string().trim().strict()),
+        price: Joi.number(),
+        oldPrice: Joi.number().optional(),
+        stock: Joi.number().optional()
+      })
     )
   })
 

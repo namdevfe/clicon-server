@@ -10,6 +10,9 @@ import ProductAttribute, {
 } from '~/models/productAttributeModel'
 import ProductAttributeValue from '~/models/productAttributeValueModel'
 import Product from '~/models/productModel'
+import ProductVariantValue from '~/models/productVariantValue'
+import Variant from '~/models/variantModel'
+import VariantValue from '~/models/variantValueModel'
 import { IApiResponse, IQueryParams } from '~/types/common'
 import {
   AddProductPayload,
@@ -21,7 +24,12 @@ import ApiError from '~/utils/ApiError'
 import slugify from '~/utils/slugify'
 
 const addNew = async (payload: AddProductPayload): Promise<IApiResponse> => {
-  const { attributes = [], ...addProductPayload } = payload
+  const {
+    attributes = [],
+    variants = [],
+    variantValues = [],
+    ...addProductPayload
+  } = payload
   try {
     const existingProduct = await Product.findOne({
       name: addProductPayload.name
@@ -42,6 +50,7 @@ const addNew = async (payload: AddProductPayload): Promise<IApiResponse> => {
 
     const addedProduct = await Product.create(addData)
 
+    // Add attributes
     if (attributes.length > 0) {
       for (const attribute of attributes) {
         // Check attribute already exist
@@ -65,6 +74,49 @@ const addNew = async (payload: AddProductPayload): Promise<IApiResponse> => {
           product: addedProduct._id,
           attribute: addedAttribute?._id,
           value: attribute.value
+        })
+      }
+    }
+
+    // Add variants
+    if (variants.length > 0) {
+      for (const variant of variants) {
+        // Check variant had already existed before
+        const existingVariant = await Variant.findOne({ name: variant.name })
+        if (!existingVariant) {
+          // Add variant
+          const addedVariant = await Variant.create({ name: variant.name })
+          // Add variant value
+          for (const variantValue of variant.values) {
+            await VariantValue.create({
+              variant: addedVariant._id,
+              value: variantValue.toString()
+            })
+          }
+        }
+      }
+    }
+
+    // Add product variant values
+    if (variantValues.length > 0) {
+      for (const variantData of variantValues) {
+        const variantValueIds = []
+
+        for (const value of variantData.variantCombination) {
+          const variantValue = await VariantValue.findOne({ value })
+          variantValue && variantValueIds.push(variantValue._id)
+        }
+
+        // Create SKU code. Example: 'id1-id2-id3-...'
+        const sku = variantValueIds.sort((a: any, b: any) => a - b).join('-')
+
+        // Add new product variant value
+        await ProductVariantValue.create({
+          product: addedProduct._id,
+          price: variantData.price,
+          oldPrice: variantData.oldPrice || 0,
+          sku,
+          stock: variantData.stock || 0
         })
       }
     }
@@ -121,6 +173,7 @@ const edit = async (
           product: editedProduct._id,
           value: attribute.value
         })
+
         if (!existingAttributeValue) {
           // Add value to attribute value collection
           await ProductAttributeValue.create({
