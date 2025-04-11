@@ -135,7 +135,12 @@ const edit = async (
   slug: string,
   payload: EditProductPayload
 ): Promise<IApiResponse> => {
-  const { attributes = [], ...editPayload } = payload
+  const {
+    attributes = [],
+    variants = [],
+    variantValues = [],
+    ...editPayload
+  } = payload
   try {
     const editData = {
       ...editPayload,
@@ -150,6 +155,7 @@ const edit = async (
       throw new ApiError(StatusCodes.NOT_FOUND, 'Product does not exist!')
     }
 
+    // Update attributes
     if (attributes.length > 0) {
       for (const attribute of attributes) {
         // Check attribute already exist
@@ -180,6 +186,63 @@ const edit = async (
             product: editedProduct._id,
             attribute: addedAttribute?._id,
             value: attribute.value
+          })
+        }
+      }
+    }
+
+    // Add variants
+    if (variants.length > 0) {
+      for (const variant of variants) {
+        // Check variant had already existed before
+        const existingVariant = await Variant.findOne({ name: variant.name })
+        if (!existingVariant) {
+          // Add variant
+          const addedVariant = await Variant.create({ name: variant.name })
+          // Add variant value
+          for (const variantValue of variant.values) {
+            await VariantValue.create({
+              variant: addedVariant._id,
+              value: variantValue.toString()
+            })
+          }
+        }
+      }
+    }
+
+    // Add product variant values
+    if (variantValues.length > 0) {
+      for (const variantData of variantValues) {
+        const variantValueIds = []
+
+        for (const value of variantData.variantCombination) {
+          const variantValue = await VariantValue.findOne({ value })
+          variantValue && variantValueIds.push(variantValue._id)
+        }
+
+        // Create SKU code. Example: 'id1-id2-id3-...'
+        const sku = variantValueIds.sort((a: any, b: any) => a - b).join('-')
+
+        // Update product variant value
+        const existingProductVariantValue = await ProductVariantValue.findOne({
+          product: editedProduct._id,
+          sku
+        })
+
+        if (existingProductVariantValue) {
+          // Update
+          existingProductVariantValue.price = variantData.price || 0
+          existingProductVariantValue.oldPrice = variantData.oldPrice || 0
+          existingProductVariantValue.stock = variantData.stock || 0
+          await existingProductVariantValue.save()
+        } else {
+          // Add new
+          await ProductVariantValue.create({
+            product: editedProduct._id,
+            price: variantData.price || 0,
+            oldPrice: variantData.oldPrice || 0,
+            sku,
+            stock: variantData.stock || 0
           })
         }
       }
