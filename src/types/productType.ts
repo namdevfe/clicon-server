@@ -24,12 +24,26 @@ export type AddProductPayload = Omit<
   '_id' | 'slug' | '_destroy' | 'createdAt' | 'updatedAt'
 > & {
   attributes: { name: string; value: string }[]
+  variants: { name: string; values: string }[]
+  variantValues: {
+    variantCombination: any[]
+    price: number
+    oldPrice?: number
+    stock: number
+  }[]
 }
 
 export type EditProductPayload = Partial<
   Omit<IProduct, '_id' | 'slug' | 'createdAt' | 'updatedAt' | '_destroy'>
 > & {
   attributes: { name: string; value: string }[]
+  variants: { name: string; value: string }[]
+  variantValues: {
+    variantCombination: any[]
+    price: number
+    oldPrice?: number
+    stock: number
+  }[]
 }
 
 export type ProductList = {
