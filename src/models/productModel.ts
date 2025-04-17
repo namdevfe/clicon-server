@@ -20,7 +20,7 @@ const productSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: PRODUCT_CATEGORY_COLLECTION_NAME
     },
-    tags: { type: Schema.Types.ObjectId, ref: PRODUCT_TAG_COLLECTION_NAME },
+    tags: { type: Array, ref: PRODUCT_TAG_COLLECTION_NAME, default: [] },
     brand: { type: Schema.Types.ObjectId, ref: BRAND_COLLECTION_NAME },
     stock: { type: Number, default: 0 },
     _destroy: {
