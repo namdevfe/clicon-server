@@ -29,13 +29,18 @@ const addNew = async (req: Request, _: Response, next: NextFunction) => {
       .message(OBJECT_ID_RULE_MESSAGE)
       .trim()
       .strict(),
-    tags: Joi.array().items(
-      Joi.string()
-        .pattern(OBJECT_ID_RULE)
-        .message(OBJECT_ID_RULE_MESSAGE)
-        .trim()
-        .strict()
-    ),
+    tags: Joi.array()
+      .items(
+        Joi.string()
+          .optional()
+          .allow('')
+          .pattern(OBJECT_ID_RULE)
+          .message(OBJECT_ID_RULE_MESSAGE)
+          .trim()
+          .strict()
+      )
+      .optional()
+      .default([]),
     attributes: Joi.array().items(
       Joi.object({
         name: Joi.string().trim().strict(),
