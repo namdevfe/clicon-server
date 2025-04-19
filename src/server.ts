@@ -12,7 +12,7 @@ const START_SERVER = async () => {
   const app = express()
   const LOCAL_DEV_APP_PORT = env.LOCAL_DEV_APP_PORT
   const LOCAL_DEV_APP_HOSTNAME = env.LOCAL_DEV_APP_HOSTNAME
-
+  
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs))
 
   // For enable cors
