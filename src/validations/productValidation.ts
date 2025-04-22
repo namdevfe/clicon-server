@@ -12,7 +12,6 @@ const addNew = async (req: Request, _: Response, next: NextFunction) => {
     price: Joi.number().required().default(0),
     oldPrice: Joi.number().optional().default(0),
     quantity: Joi.number().required(),
-    specification: Joi.string().optional().allow(''),
     stock: Joi.number().default(0),
     totalRatings: Joi.number().default(0),
     imageCover: Joi.string().required().trim().strict(),

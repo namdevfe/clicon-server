@@ -50,19 +50,8 @@ export type ProductList = {
   products: IProduct[]
   pagination: IPagination
 }
-interface variantItem {
-  id: mongoose.Types.ObjectId;
-  value: string;
-}
-export interface variants {
-  _id: string;
-  items: variantItem[];
-}
-interface formatvariantItem {
-  id: string;
-  value: string;
-}
-export interface formatvariants {
-  name: string;
-  items: formatvariantItem[];
+
+export interface IVariant extends IBaseType {
+  _id: string
+  name: string
 }
