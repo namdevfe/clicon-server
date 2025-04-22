@@ -1,30 +1,27 @@
-import { StatusCodes } from "http-status-codes"
-import mongoose from "mongoose"
+import { StatusCodes } from 'http-status-codes'
+import mongoose from 'mongoose'
 import {
   LIMIT_DEFAULT,
   PAGE_DEFAULT,
   SORT,
-  SORT_BY_DEFAULT,
-} from "~/constants/pagination"
-import ProductAttribute, {
-  PRODUCT_ATTRIBUTE_COLLECTION_NAME,
-} from "~/models/productAttributeModel"
-import ProductAttributeValue from "~/models/productAttributeValueModel"
-import Product from "~/models/productModel"
-import ProductVariantValue from "~/models/productVariantValue"
-import Variant from "~/models/variantModel"
-import VariantValue from "~/models/variantValueModel"
-import { IApiResponse, IQueryParams } from "~/types/common"
+  SORT_BY_DEFAULT
+} from '~/constants/pagination'
+import ProductAttribute from '~/models/productAttributeModel'
+import ProductAttributeValue from '~/models/productAttributeValueModel'
+import Product from '~/models/productModel'
+import ProductVariantValue from '~/models/productVariantValue'
+import Variant from '~/models/variantModel'
+import VariantValue from '~/models/variantValueModel'
+import { IApiResponse, IQueryParams } from '~/types/common'
 import {
   AddProductPayload,
   EditProductPayload,
   IProduct,
-  ProductList,
-  variants,
-  formatvariants,
-} from "~/types/productType"
-import ApiError from "~/utils/ApiError"
-import slugify from "~/utils/slugify"
+  ProductList
+} from '~/types/productType'
+import ApiError from '~/utils/ApiError'
+import { createRandomString } from '~/utils/random'
+import slugify from '~/utils/slugify'
 
 const addNew = async (payload: AddProductPayload): Promise<IApiResponse> => {
   const {
@@ -33,50 +30,62 @@ const addNew = async (payload: AddProductPayload): Promise<IApiResponse> => {
     variantValues = [],
     ...addProductPayload
   } = payload
+  const session = await mongoose.startSession()
+
   try {
+    session.startTransaction()
+
     const existingProduct = await Product.findOne({
-      name: addProductPayload.name,
-    })
+      name: addProductPayload.name
+    }).session(session)
 
     if (existingProduct) {
       throw new ApiError(
         StatusCodes.BAD_REQUEST,
-        "Product name had already exist!"
+        'Product name had already exist!'
       )
     }
 
     // Add product
     const addData = {
       ...addProductPayload,
-      slug: slugify(addProductPayload.name),
+      slug: slugify(addProductPayload.name)
     }
 
-    const addedProduct = await Product.create(addData)
+    const addedProduct = new Product(addData)
+    await addedProduct.save({ session })
 
     // Add attributes
+    const attributesData = []
     if (attributes.length > 0) {
       for (const attribute of attributes) {
         // Check attribute already exist
         const existingAttribute = await ProductAttribute.findOne({
-          name: attribute.name,
-        })
+          name: attribute.name
+        }).session(session)
         // Add name to attribute collection
         let addedAttribute = null
         if (!existingAttribute) {
-          addedAttribute = await ProductAttribute.create({
-            name: attribute.name,
-          })
+          addedAttribute = new ProductAttribute({ name: attribute.name })
+          await addedAttribute.save({ session })
         } else {
           addedAttribute = await ProductAttribute.findOne({
-            name: attribute.name,
-          })
+            name: attribute.name
+          }).session(session)
         }
 
         // Add value to attribute value collection
-        await ProductAttributeValue.create({
+        const addedAttributeValue = new ProductAttributeValue({
           product: addedProduct._id,
           attribute: addedAttribute?._id,
-          value: attribute.value,
+          value: attribute.value
+        })
+        await addedAttributeValue.save({ session })
+
+        attributesData.push({
+          _id: addedAttributeValue._id,
+          name: addedAttribute?.name,
+          value: addedAttributeValue.value
         })
       }
     }
@@ -85,51 +94,103 @@ const addNew = async (payload: AddProductPayload): Promise<IApiResponse> => {
     if (variants.length > 0) {
       for (const variant of variants) {
         // Check variant had already existed before
-        const existingVariant = await Variant.findOne({ name: variant.name })
+        const existingVariant = await Variant.findOne({
+          name: new RegExp(`^${variant.name}$`, 'i')
+        })
+
         if (!existingVariant) {
           // Add variant
-          const addedVariant = await Variant.create({ name: variant.name })
+          const addedVariant = new Variant({ name: variant.name })
+          await addedVariant.save({ session })
+
           // Add variant value
           for (const variantValue of variant.values) {
-            await VariantValue.create({
+            const addedVariantValue = new VariantValue({
               variant: addedVariant._id,
-              value: variantValue.toString(),
+              valueCode: createRandomString(4).toUpperCase(),
+              value: variantValue.toString()
             })
+            await addedVariantValue.save({ session })
           }
         }
       }
     }
 
     // Add product variant values
+    const variantValuesData = []
     if (variantValues.length > 0) {
       for (const variantData of variantValues) {
-        const variantValueIds = []
+        const variantValueCodes = []
 
         for (const value of variantData.variantCombination) {
-          const variantValue = await VariantValue.findOne({ value })
-          variantValue && variantValueIds.push(variantValue._id)
+          const variantValue = await VariantValue.findOne({ value }).session(
+            session
+          )
+
+          if (!variantValue) {
+            throw new ApiError(
+              StatusCodes.NOT_FOUND,
+              `Variant ${value} not found!`
+            )
+          }
+
+          variantValueCodes.push(variantValue.valueCode)
         }
 
-        // Create SKU code. Example: 'id1-id2-id3-...'
-        const sku = variantValueIds.sort((a: any, b: any) => a - b).join("-")
+        // Create SKU code. Example: 'code1-code2-code3-...'
+        const sku = variantValueCodes.sort((a: any, b: any) => a - b).join('-')
 
         // Add new product variant value
-        await ProductVariantValue.create({
+        const addedProductVariantValue = new ProductVariantValue({
           product: addedProduct._id,
           price: variantData.price,
           oldPrice: variantData.oldPrice || 0,
           sku,
-          stock: variantData.stock || 0,
+          stock: variantData.stock || 0
         })
+        await addedProductVariantValue.save({ session })
+
+        // Query product variants base on productVariantValue added
+        if (addedProductVariantValue._id) {
+          const varinatValueCodes = addedProductVariantValue.sku.split('-')
+
+          const variantValues = await VariantValue.find({
+            valueCode: { $in: varinatValueCodes },
+            _destroy: false
+          })
+            .populate('variant')
+            .session(session)
+
+          const values = variantValues.map((item) => {
+            return {
+              code: item.valueCode,
+              name: (item.variant as any)?.name,
+              value: item.value
+            }
+          })
+
+          variantValuesData.push({
+            ...addedProductVariantValue.toObject(),
+            values
+          })
+        }
       }
     }
 
+    await session.commitTransaction()
+    session.endSession()
+
     return {
       statusCode: StatusCodes.CREATED,
-      message: "Added product is successfully.",
-      data: addedProduct,
+      message: 'Added product is successfully.',
+      data: {
+        ...addedProduct.toObject(),
+        attributes: attributesData,
+        variants: variantValuesData
+      }
     }
   } catch (error) {
+    await session.abortTransaction()
     throw error
   }
 }
@@ -144,51 +205,110 @@ const edit = async (
     variantValues = [],
     ...editPayload
   } = payload
+
+  const session = await mongoose.startSession()
   try {
     const editData = {
       ...editPayload,
-      slug: editPayload.name && slugify(editPayload.name),
+      slug: editPayload.name && slugify(editPayload.name)
     }
+
+    session.startTransaction()
 
     const editedProduct = await Product.findOneAndUpdate({ slug }, editData, {
       new: true,
+      session
     })
 
     if (!editedProduct) {
-      throw new ApiError(StatusCodes.NOT_FOUND, "Product does not exist!")
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Product does not exist!')
     }
 
     // Update attributes
+    const attributesData = (
+      await Promise.all(
+        await ProductAttributeValue.find({
+          product: editedProduct._id
+        })
+          .populate('attribute')
+          .session(session)
+      )
+    ).map((attributeValue) => {
+      return {
+        _id: attributeValue._id,
+        name: (attributeValue.attribute as any)?.name,
+        value: attributeValue.value
+      }
+    })
+
+    // Handle attributes from payload
     if (attributes.length > 0) {
       for (const attribute of attributes) {
         // Check attribute already exist
         const existingAttribute = await ProductAttribute.findOne({
-          name: attribute.name,
-        })
+          name: attribute.name
+        }).session(session)
+
         // Add name to attribute collection
         let addedAttribute = null
+
         if (!existingAttribute) {
-          addedAttribute = await ProductAttribute.create({
-            name: attribute.name,
+          addedAttribute = new ProductAttribute({
+            name: attribute.name
           })
+
+          await addedAttribute.save({ session })
         } else {
-          addedAttribute = await ProductAttribute.findOne({
-            name: attribute.name,
-          })
+          addedAttribute = existingAttribute
         }
 
-        // Check attribute value is created before
-        const existingAttributeValue = await ProductAttributeValue.findOne({
-          product: editedProduct._id,
-          value: attribute.value,
-        })
+        const existingAttributeValue = attributesData.find(
+          (item) => item.name.toLowerCase() === attribute.name.toLowerCase()
+        )
 
-        if (!existingAttributeValue) {
-          // Add value to attribute value collection
-          await ProductAttributeValue.create({
+        if (existingAttributeValue) {
+          // Update attribute value if value change
+          if (existingAttributeValue.value !== attribute.value) {
+            const updatedAttributeValue =
+              await ProductAttributeValue.findByIdAndUpdate(
+                existingAttributeValue._id,
+                {
+                  value: attribute.value
+                },
+                {
+                  new: true,
+                  session
+                }
+              )
+
+            if (updatedAttributeValue) {
+              const indexOfAttributeValueEdited = attributesData.findIndex(
+                (item) =>
+                  item.name.toLowerCase() === attribute.name.toLowerCase()
+              )
+
+              attributesData[indexOfAttributeValueEdited]._id =
+                updatedAttributeValue._id
+              attributesData[indexOfAttributeValueEdited].name =
+                addedAttribute.name
+              attributesData[indexOfAttributeValueEdited].value =
+                attribute.value
+            }
+          }
+        } else {
+          // Add new attribute value
+          const newAttributeValue = new ProductAttributeValue({
             product: editedProduct._id,
             attribute: addedAttribute?._id,
-            value: attribute.value,
+            value: attribute.value
+          })
+
+          await newAttributeValue.save({ session })
+
+          attributesData.push({
+            _id: newAttributeValue._id,
+            name: addedAttribute.name,
+            value: newAttributeValue.value
           })
         }
       }
@@ -198,65 +318,132 @@ const edit = async (
     if (variants.length > 0) {
       for (const variant of variants) {
         // Check variant had already existed before
-        const existingVariant = await Variant.findOne({ name: variant.name })
+        const existingVariant = await Variant.findOne({
+          name: variant.name
+        }).session(session)
+
         if (!existingVariant) {
           // Add variant
-          const addedVariant = await Variant.create({ name: variant.name })
+          const addedVariant = new Variant({ name: variant.name })
+          await addedVariant.save({ session })
+
           // Add variant value
           for (const variantValue of variant.values) {
-            await VariantValue.create({
-              variant: addedVariant._id,
-              value: variantValue.toString(),
-            })
+            const value = await VariantValue.findOne({
+              value: variantValue
+            }).session(session)
+
+            !value &&
+              (await new VariantValue({
+                variant: addedVariant._id,
+                valueCode: createRandomString(4).toUpperCase(),
+                value: variantValue.toString()
+              }).save({ session }))
+          }
+        } else {
+          for (const variantValue of variant.values) {
+            const value = await VariantValue.findOne({
+              value: variantValue
+            }).session(session)
+
+            !value &&
+              (await new VariantValue({
+                variant: existingVariant._id,
+                valueCode: createRandomString(4).toUpperCase(),
+                value: variantValue.toString()
+              }).save({ session }))
           }
         }
       }
     }
 
-    // Add product variant values
     if (variantValues.length > 0) {
       for (const variantData of variantValues) {
-        const variantValueIds = []
+        const variantValueCodes = []
 
         for (const value of variantData.variantCombination) {
-          const variantValue = await VariantValue.findOne({ value })
-          variantValue && variantValueIds.push(variantValue._id)
+          const variantValue = await VariantValue.findOne({ value }).session(
+            session
+          )
+
+          if (!variantValue) {
+            throw new ApiError(
+              StatusCodes.BAD_REQUEST,
+              'Variant value is not exist.'
+            )
+          }
+
+          variantValueCodes.push(variantValue.valueCode)
         }
 
-        // Create SKU code. Example: 'id1-id2-id3-...'
-        const sku = variantValueIds.sort((a: any, b: any) => a - b).join("-")
+        // Create SKU code
+        const sku = variantValueCodes.sort((a: any, b: any) => a - b).join('-')
 
         // Update product variant value
         const existingProductVariantValue = await ProductVariantValue.findOne({
           product: editedProduct._id,
-          sku,
-        })
+          sku
+        }).session(session)
 
         if (existingProductVariantValue) {
           // Update
           existingProductVariantValue.price = variantData.price || 0
           existingProductVariantValue.oldPrice = variantData.oldPrice || 0
           existingProductVariantValue.stock = variantData.stock || 0
-          await existingProductVariantValue.save()
+          await existingProductVariantValue.save({ session })
         } else {
           // Add new
-          await ProductVariantValue.create({
+          const addedProductVariant = new ProductVariantValue({
             product: editedProduct._id,
             price: variantData.price || 0,
             oldPrice: variantData.oldPrice || 0,
             sku,
-            stock: variantData.stock || 0,
+            stock: variantData.stock || 0
           })
+
+          await addedProductVariant.save({ session })
         }
       }
     }
 
+    const listProductVariant = await ProductVariantValue.find({
+      product: editedProduct._id
+    }).session(session)
+
+    const variantsData = await Promise.all(
+      listProductVariant.map(async (item) => {
+        const listValueCode = item.sku.split('-')
+        const listVariantValue = await VariantValue.find({
+          valueCode: { $in: listValueCode }
+        })
+          .populate('variant')
+          .session(session)
+
+        return {
+          ...item.toObject(),
+          values: listVariantValue.map((variantValueItem) => ({
+            code: variantValueItem.valueCode,
+            name: (variantValueItem.variant as any)?.name,
+            value: variantValueItem.value
+          }))
+        }
+      })
+    )
+
+    await session.commitTransaction()
+    session.endSession()
+
     return {
       statusCode: StatusCodes.OK,
-      message: "Edited product is successfully.",
-      data: editedProduct,
+      message: 'Edited product is successfully.',
+      data: {
+        ...editedProduct.toObject(),
+        attributes: attributesData,
+        variants: [...variantsData]
+      }
     }
   } catch (error) {
+    await session.abortTransaction()
     throw error
   }
 }
@@ -267,8 +454,8 @@ const getAll = async (): Promise<IApiResponse> => {
 
     return {
       statusCode: StatusCodes.OK,
-      message: "Get all products are successfully.",
-      data: products,
+      message: 'Get all products are successfully.',
+      data: products
     }
   } catch (error) {
     throw error
@@ -282,17 +469,17 @@ const getList = async (
     page = PAGE_DEFAULT,
     limit = LIMIT_DEFAULT,
     sort = SORT.ASC,
-    sortBy = SORT_BY_DEFAULT,
+    sortBy = SORT_BY_DEFAULT
   } = query || {}
   try {
     const queries: Record<string, any> = {
-      _destroy: false,
+      _destroy: false
     }
 
     const options = {
       skip: (Number(page) - 1) * Number(limit),
       limit: +limit,
-      sort: { [sortBy as string]: sort },
+      sort: { [sortBy as string]: sort }
     }
 
     const products = (await Product.find(queries, null, options)) as IProduct[]
@@ -301,16 +488,16 @@ const getList = async (
 
     return {
       statusCode: StatusCodes.OK,
-      message: "Get list products are successfully.",
+      message: 'Get list products are successfully.',
       data: {
         products,
         pagination: {
           currentPage: +page,
           limit: +limit,
           total,
-          totalPages,
-        },
-      },
+          totalPages
+        }
+      }
     }
   } catch (error) {
     throw error
@@ -320,86 +507,59 @@ const getList = async (
 const getDetails = async (slug: string): Promise<IApiResponse> => {
   try {
     const productDetails = await Product.findOne({ slug })
+
     if (!productDetails) {
-      throw new ApiError(StatusCodes.NOT_FOUND, "Product does not exist!")
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Product does not exist!')
     }
 
     const attributeValues = await ProductAttributeValue.find({
-      product: productDetails._id,
-    }).populate("attribute")
+      product: productDetails._id
+    }).populate('attribute')
 
     const attributes = attributeValues.map((item: any) => ({
+      _id: item._id,
       name: item.attribute?.name,
-      value: item.value,
+      value: item.value
     }))
 
-    const arraySkus = await ProductVariantValue.find(
-      { product: productDetails._id },
-      { sku: 1, _id: 0 } // chỉ lấy field `sku`
-    ).lean() // trả về plain JS object
-    let variants: formatvariants[] = []
-    if (arraySkus.length > 0) {
-      const uniqueIds: string[] = []
-      for (const item of arraySkus) {
-        const parts = item.sku.split("-")
-        for (const id of parts) {
-          if (!uniqueIds.includes(id)) {
-            uniqueIds.push(id)
+    // Get product variants
+    const productVariants = await ProductVariantValue.find({
+      product: productDetails._id
+    })
+
+    const variants = await Promise.all(
+      productVariants.map(async (productVariant) => {
+        const { sku } = productVariant
+        const varinatValueCodes = sku.split('-')
+
+        const variantValues = await VariantValue.find({
+          valueCode: { $in: varinatValueCodes },
+          _destroy: false
+        }).populate('variant')
+
+        const values = variantValues.map((item) => {
+          return {
+            code: item.valueCode,
+            name: (item.variant as any)?.name,
+            value: item.value
           }
+        })
+
+        return {
+          ...productVariant.toObject(),
+          values
         }
-      }
-      // map Set thành mảng ObjectId của monggo
-      const objectIds = uniqueIds.map((id) => new mongoose.Types.ObjectId(id))
-      const pipeline = [
-        // chỉ lấy docs có _id nằm trong list
-        {
-          $match: { _id: { $in: objectIds } },
-        },
-        // join sang collection variants để lấy tên variant (Color, RAM,…)
-        {
-          $lookup: {
-            from: "variants", // tên collection bên MongoDB
-            localField: "variant", // field reference bên ProductVariant
-            foreignField: "_id", // field _id bên Variant
-            as: "variantInfo",
-          },
-        },
-        {
-          $unwind: "$variantInfo", // biến mảng thành object
-        },
-        // gom nhóm theo tên variant
-        {
-          $group: {
-            _id: "$variantInfo.name",
-            items: {
-              $push: {
-                id: "$_id",
-                value: "$value",
-              },
-            },
-          },
-        },
-      ]
-
-      const variantValue: variants[] = await VariantValue.aggregate(pipeline)
-
-      variants = variantValue.map((group) => ({
-        name: group._id,
-        items: group.items.map((item) => ({
-          id: item.id.toString(),
-          value: item.value,
-        })),
-      }))
-    }
+      })
+    )
 
     return {
       statusCode: StatusCodes.OK,
-      message: "Get product details is successfully.",
+      message: 'Get product details is successfully.',
       data: {
         ...productDetails.toObject(),
         attributes,
-        variants,
-      },
+        variants
+      }
     }
   } catch (error) {
     throw error
@@ -411,7 +571,7 @@ const productService = {
   edit,
   getAll,
   getList,
-  getDetails,
+  getDetails
 }
 
 export default productService

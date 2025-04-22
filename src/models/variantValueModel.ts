@@ -9,6 +9,11 @@ const variantValueSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: VARIANT_COLLECTION_NAME
     },
+    valueCode: {
+      type: String,
+      requiered: true,
+      unique: true
+    },
     value: { type: String, required: true, unique: true },
     _destroy: {
       type: Boolean,
